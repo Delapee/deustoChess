@@ -2,30 +2,28 @@
 #include <string.h>
 #include "chess.h"
 
-int main(void)
+void test(void)
 {
-    board bo;
-    board *bi = &bo;
+    Board bo;
+    Board *bi = &bo;
     char jugada[5];
     prepareBoard(bi);
-    loadPanel(bi, "e1/d1/a1h1/c1f1/b1g1/a2b2c2d2e2f2g2h2|e8/d8/a8h8/c8f8/b8g8/a7b7c7d7e7f7g7h7", 1);
-
     do {
         printBoard(bi, 0);
         printf("\n\nSeleccione una jugada: ");
         gets_s(jugada, 5);
-        if (isMove(bi, jugada)) move(bi, jugada);
+        if (isMove(bi, jugada)) movePiece(bi, jugada);
+        checkCastle(bi);
+
         system("cls");
 
     } while (jugada[0] != 'i');
 
-
-    return 0;
 }
 
 // Metodos tablero
 
-void prepareBoard(board* bo) {
+void prepareBoard(Board* bo) {
     bo->turn = 0;
 
     for (size_t i = 0; i < 64; i++)
@@ -35,11 +33,16 @@ void prepareBoard(board* bo) {
         bo->panel[i][2] = '\0';
     }
 
-    loadPanel(bo, "e1/d1/a1h1/c1f1/b1g1/a2b2c2d2e2f2g2h2|e8/d8/a8h8/c8f8/b8g8/a7b7c7d7e7f7g7h7", 1);
+    bo->castl[0] = 1;
+    bo->castl[1] = 1;
+    bo->castl[2] = 1;
+    bo->castl[3] = 1;
+
+    loadPanel(bo, "e1/d1/a1h1/c1XX/b1XX/a2b2c2d2e2f2g2h2|e8/d8/a8h8/c8f8/b8g8/a7b7c7d7e7f7g7h7", 1);
 }
 
 
-void loadPanel(board *bo, char status[80], int i)
+void loadPanel(Board *bo, char status[80], int i)
 {
     char white[40];
     char black[40];
@@ -52,7 +55,7 @@ void loadPanel(board *bo, char status[80], int i)
     loadPiece(bo, black, 'n');
 }
 
-void loadPiece(board *bo, char status[40], char player) 
+void loadPiece(Board *bo, char status[40], char player)
 {
     char piece[6] = { 'R','D','T','A','C','P' };
     int lo[6] = { 1, 1, 2, 2, 2, 8 };
@@ -74,14 +77,14 @@ void loadPiece(board *bo, char status[40], char player)
 
 }
 
-void printBoard(board *bo, int player)
+void printBoard(Board *bo, int player)
 {   
     printf("\n");
     char s = 'a';
     int t = 1;
     for (int i = 56; i >= 0; i -= 8)
     {
-        if (player == 1)
+        if (player == 0)
         {
             printf("\t%d\t|", (i / 8) + 1);
             for (size_t j = 0; j < 8; j++)
@@ -126,17 +129,17 @@ int getRow(char move[3])
     return move[1] - '0';
 }
 
-char getPiece(board *bo, char move[3]) 
+char getPiece(Board *bo, char move[3])
 {
     return bo->panel[getPos(move)][0];
 }
 
-char getColor(board *bo, char move[3]) 
+char getColor(Board *bo, char move[3])
 {
     return bo->panel[getPos(move)][1];
 }
 
-int isBlock(board *bo, char start[3], char end[3]) {
+int isBlock(Board *bo, char start[3], char end[3]) {
     int s, e;
     int t1, t2;
 
@@ -237,7 +240,7 @@ int isBlock(board *bo, char start[3], char end[3]) {
 }
 
 // Movimento
-void move(board *bo, char move[5]) 
+void movePiece(Board *bo, char move[5])
 {
     char start[3] = { move[0], move[1], '\0' };
     char end[3] = { move[2], move[3], '\0'};
@@ -247,8 +250,9 @@ void move(board *bo, char move[5])
         
 }
 
-int isMove(board *bo, char move[5])
+int isMove(Board *bo, char move[5])
 {
+
     char start[3] = { move[0], move[1], '\0' };
     char end[3] = { move[2], move[3], '\0' };
     char pieceS[3] = { getPiece(bo, start), getColor(bo, start), '\0' };
@@ -263,7 +267,7 @@ int isMove(board *bo, char move[5])
             {
             case 'P':         
 
-                if (getPos(start) + 8 * t == getPos(end) && isBlock(bo, start, end) == 0)  // Mover normal
+                if (getPos(start) + 8 * t == getPos(end) && getPiece(bo, end) == ' ')  // Mover normal
                 {
                     return 1;
                 }
@@ -271,7 +275,7 @@ int isMove(board *bo, char move[5])
                 {
                     return 1;
                 }               
-                else if (getPos(start) + 16 * t == getPos(end))  // Avanzar 2 casillas 
+                else if (getPos(start) + 16 * t == getPos(end) && isBlock(bo, start, end) == 0 && getPiece(bo, end) == ' ')  // Avanzar 2 casillas 
                 {
                     if ( (t == 1 && getRow(start) == 2) || (t == -1 && getRow(start) == 7))
                     {
@@ -384,7 +388,32 @@ int isMove(board *bo, char move[5])
                 {
                     return 1;
                 }
-
+                else if (getColor(bo, start) == 'b') 
+                {
+                    if (getPos(start) + 2 == getPos(end) && bo->castl[1] == 1 && isBlock(bo, "e1", "h1") == 0)
+                    {
+                        movePiece(bo, "h1f1\0");
+                        return 1;
+                    }
+                    else if (getPos(start) - 2 == getPos(end) && bo->castl[0] == 1 && isBlock(bo, "e1", "a1") == 0)
+                    {
+                        movePiece(bo, "a1d1\0");
+                        return 1;
+                    }
+                }
+                else
+                {
+                    if (getPos(start) + 2 == getPos(end) && bo->castl[3] == 1 && isBlock(bo, "e8", "h8") == 0)
+                    {
+                        //move(bo, "h8f8\0");
+                        return 1;
+                    }
+                    else if (getPos(start) - 2 == getPos(end) && bo->castl[3] == 1 && isBlock(bo, "e8", "a8") == 0)
+                    {
+                        //move(bo, "a8d8\0");
+                        return 1;
+                    }
+                }
                 break;
 
             default:
@@ -395,4 +424,38 @@ int isMove(board *bo, char move[5])
     
     printf("\nMovimiento no valido");
     return 0;
+}
+
+void checkCastle(Board *bo)
+{
+ 
+    if (bo->panel[getPos("e8") != "Rb"] && (bo->castl[2] == 1 || bo->castl[3] == 1))
+    {
+        bo->castl[0] = 0;
+        bo->castl[1] = 0;
+    }
+    else if (bo->panel[getPos("a1") != "Tb"] && bo->castl[0] == 1)
+    {
+        bo->castl[0] = 0;
+    }
+    else if (bo->panel[getPos("h1") != "Tb"] && bo->castl[1] == 1)
+    {
+        bo->castl[1] = 0;
+    }
+    
+    if (bo->panel[getPos("e8") != "Rn"] && (bo->castl[2] == 1 || bo->castl[3] == 1))
+    {
+        bo->castl[2] = 0;
+        bo->castl[3] = 0;
+    }
+    
+    else if (bo->panel[getPos("a8") != "Tn"] && bo->castl[2] == 1)
+    {
+        bo->castl[2] = 0;
+    }
+    else if (bo->panel[getPos("h8") != "Tn"] && bo->castl[3] == 1)
+    {
+        bo->castl[3] = 0;
+    }
+
 }

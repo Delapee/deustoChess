@@ -11,17 +11,13 @@ void test(void)
     prepareBoard(bi);
 
     do {
-        printBoard(bi, 0);
-        
+        printBoard(bi, 0);   
         printf("\n\nSeleccione una jugada: ");
         gets_s(jugada, 5);
-
 
         if (isMove(bi, jugada)) 
                 movePiece(bi, jugada);
         checkCastle(bi);
-
-
 
         system("cls");
     } while (jugada[0] != 'i');
@@ -43,8 +39,8 @@ void prepareBoard(Board* bo) {
     bo->castl[2] = 1;
     bo->castl[3] = 1;
 
-    //loadPanel(bo, "e1/d1/a1h1/c1f1/b1g1/a2b2c2d2e2f2g2h2|e8/d8/a8h8/c8f8/b8g8/a7b7c7d7e7f7g7h7");         
-    loadPanel(bo, "e1/XX/XXh1/XXXX/XXXX/XXXXXXXXXXXXXXXX|e8/XX/h8f8/XXXX/XXXX/XXXXXXXXXXXXXXXX");
+    //loadPanel(bo, "e1/d1/a1h1/c1f1/b1g1/a2b2c2d2e2f2g2h2/|e8/d8/a8h8/c8f8/b8g8/a7b7c7d7e7f7g7h7/");         
+    //loadPanel(bo, "e1//a1h1///|e8//////");
     checkCastle(bo);
 }
 
@@ -64,23 +60,19 @@ void loadPanel(Board *bo, char status[80])
 void loadPiece(Board *bo, char status[40], char player)
 {
     char piece[6] = { 'R','D','T','A','C','P' };
-    int lo[6] = { 1, 1, 2, 2, 2, 8 };
-    char *token = strtok(status, "/");
+  
+    int j = 0;
     for (size_t i = 0; i < 6; i++)
-    {   
-        for (int j = 0; j < lo[i]*2; j+=2)
-        {   
-            char pos[3] = { token[j], token[j+1], '\0' };
-            char pieceT[3] = { piece[i], player , '\0'};
-            if (getPiece(bo, pos) != 'X') {
-                strcpy(bo->panel[getPos(pos)], pieceT);
-            }
-            
-            
+    {
+        while (status[j] != '/')
+        {
+            char pos[3] = { status[j], status[j + 1], '\0' };
+            char pieceT[3] = { piece[i], player , '\0' };
+            strcpy(bo->panel[getPos(pos)], pieceT);
+            j += 2;
         }
-        token = strtok(NULL, "/");
+        j++;
     }
-
 }
 
 void savePanel(Board* bo, char estatus[80]) {
@@ -519,21 +511,14 @@ void checkCastle(Board *bo)
 
 int isSpot(Board* bo, char pos[3], char color)
 {
-
     for (int i = 0; i < 64; i++)
     {
         if ( bo->panel[i][1] == color)
         {
             char move[5] = { getColumnId(i), getRowId(i) + '0', getColumn(pos), getRow(pos) + '0','\0' };
-
-            if (isMove(bo, move))
-            {
-                return 1;
-            }
-       
+            if (isMove(bo, move)) return 1;
         }
     }
 
     return 0;
-
 }

@@ -7,16 +7,14 @@ void test(void)
     Board bo;
     Board *bi = &bo;
     char jugada[5];
-    char estatus[80] = "";
     prepareBoard(bi);
-
+    loadPanel(bi, "e1/d1/a1h1/c1f1/b1g1/a2b2c2d2e2f2g2h2/|e8/d8/a8h8/c8f8/b8g8/a7b7c7d7e7f7g7h7/");
     do {
         printBoard(bi, 0);   
         printf("\n\nSeleccione una jugada: ");
         gets_s(jugada, 5);
 
-        if (isMove(bi, jugada)) 
-                movePiece(bi, jugada);
+        if (isMove(bi, jugada)) movePiece(bi, jugada);
         checkCastle(bi);
 
         system("cls");
@@ -38,10 +36,6 @@ void prepareBoard(Board* bo) {
     bo->castl[1] = 1;
     bo->castl[2] = 1;
     bo->castl[3] = 1;
-
-    //loadPanel(bo, "e1/d1/a1h1/c1f1/b1g1/a2b2c2d2e2f2g2h2/|e8/d8/a8h8/c8f8/b8g8/a7b7c7d7e7f7g7h7/");         
-    //loadPanel(bo, "e1//a1h1///|e8//////");
-    checkCastle(bo);
 }
 
 void loadPanel(Board *bo, char status[80])
@@ -60,7 +54,7 @@ void loadPanel(Board *bo, char status[80])
 void loadPiece(Board *bo, char status[40], char player)
 {
     char piece[6] = { 'R','D','T','A','C','P' };
-  
+    
     int j = 0;
     for (size_t i = 0; i < 6; i++)
     {
@@ -75,19 +69,34 @@ void loadPiece(Board *bo, char status[40], char player)
     }
 }
 
-void savePanel(Board* bo, char estatus[80]) {
+void savePanel(Board* bo, char status[80]) {
 
-    char wResult[80] = "\0";
-
-    for (int i = 0; i < 64; i++)
+    char piece[6] = { 'R','D','T','A','C','P' };
+    char wResult[80] = "";
+    char bResult[80] = "";
+    
+    for (size_t i = 0; i < 6; i++)
     {
-        if (bo->panel[i][1] == 'b')
+        for (size_t j = 0; j < 64; j++)
         {
-            char piece[3] = { bo->panel[i][0] ,'b' , '\0' };
-            strcat(wResult, piece);
+            if (bo->panel[j][0] == piece[i]) {
+                char pos[3] = { getColumnId(j) ,getRowId(j) + '0', '\0' };
+                if (bo->panel[j][1] == 'b')
+                {
+                    strcat(wResult, pos);
+                }
+                else if (bo->panel[j][1] == 'n')
+                {
+                    strcat(bResult, pos);
+                }
+            }      
         }
-    }
-    strcpy(estatus, wResult);
+        strcat(wResult, "/\0");
+        strcat(bResult, "/\0");
+    } 
+    strcat(wResult, "|\0");
+    strcat(wResult, bResult);
+    strcpy(status, wResult);
 }
 
 void printBoard(Board *bo, int player)
@@ -154,7 +163,7 @@ char getColor(Board *bo, char move[3])
 
 char getColumnId(int pos) 
 {
-    char l[8] = { 'a','b','c','d','e','f','g' };
+    char l[8] = { 'a','b','c','d','e','f','g','h' };
 
     while (pos > 7)
     {
@@ -193,7 +202,7 @@ int isBlock(Board *bo, char start[3], char end[3]) {
             t1 = -1;
         }
 
-        for (int i = 1; i <= e - s; i++)
+        for (int i = 1; i < e - s; i++)
         {
             char pos[3] = { getColumn(start), (getRow(start) + i*t1) + '0', '\n' };
             if (getColor(bo, pos) != ' ')
@@ -289,7 +298,6 @@ void movePiece(Board *bo, char move[5])
 
 int isMove(Board *bo, char move[5])
 {
-
     char start[3] = { move[0], move[1], '\0' };
     char end[3] = { move[2], move[3], '\0' };
     char pieceS[3] = { getPiece(bo, start), getColor(bo, start), '\0' };
@@ -310,7 +318,7 @@ int isMove(Board *bo, char move[5])
             {
                 return 1;
             }               
-            else if (getPos(start) + 16 * t == getPos(end) && isBlock(bo, start, end) == 0 && getPiece(bo, end) == ' ')  // Avanzar 2 casillas 
+            else if (getPos(start) + 16 * t == getPos(end) && bo->panel[getPos(start) + 8 * t][0] == ' ' && getPiece(bo, end) == ' ')  // Avanzar 2 casillas 
             {
                 if ( (t == 1 && getRow(start) == 2) || (t == -1 && getRow(start) == 7))
                 {
@@ -521,4 +529,10 @@ int isSpot(Board* bo, char pos[3], char color)
     }
 
     return 0;
+}
+
+int checkWin(Board* bo, char player) 
+{
+
+
 }

@@ -7,24 +7,29 @@ void test(void)
     Board bo;
     Board *bi = &bo;
     char jugada[5];
+    char estatus[80] = "";
     prepareBoard(bi);
+
     do {
         printBoard(bi, 0);
+        
         printf("\n\nSeleccione una jugada: ");
         gets_s(jugada, 5);
-        if (isMove(bi, jugada)) movePiece(bi, jugada);
+
+
+        if (isMove(bi, jugada)) 
+                movePiece(bi, jugada);
         checkCastle(bi);
 
-        system("cls");
 
+
+        system("cls");
     } while (jugada[0] != 'i');
 
 }
 
 // Metodos tablero
-
 void prepareBoard(Board* bo) {
-    bo->turn = 0;
 
     for (size_t i = 0; i < 64; i++)
     {
@@ -38,11 +43,12 @@ void prepareBoard(Board* bo) {
     bo->castl[2] = 1;
     bo->castl[3] = 1;
 
-    loadPanel(bo, "e1/d1/a1h1/c1XX/b1XX/a2b2c2d2e2f2g2h2|e8/d8/a8h8/c8f8/b8g8/a7b7c7d7e7f7g7h7", 1);
+    //loadPanel(bo, "e1/d1/a1h1/c1f1/b1g1/a2b2c2d2e2f2g2h2|e8/d8/a8h8/c8f8/b8g8/a7b7c7d7e7f7g7h7");         
+    loadPanel(bo, "e1/XX/XXh1/XXXX/XXXX/XXXXXXXXXXXXXXXX|e8/XX/h8f8/XXXX/XXXX/XXXXXXXXXXXXXXXX");
+    checkCastle(bo);
 }
 
-
-void loadPanel(Board *bo, char status[80], int i)
+void loadPanel(Board *bo, char status[80])
 {
     char white[40];
     char black[40];
@@ -75,6 +81,21 @@ void loadPiece(Board *bo, char status[40], char player)
         token = strtok(NULL, "/");
     }
 
+}
+
+void savePanel(Board* bo, char estatus[80]) {
+
+    char wResult[80] = "\0";
+
+    for (int i = 0; i < 64; i++)
+    {
+        if (bo->panel[i][1] == 'b')
+        {
+            char piece[3] = { bo->panel[i][0] ,'b' , '\0' };
+            strcat(wResult, piece);
+        }
+    }
+    strcpy(estatus, wResult);
 }
 
 void printBoard(Board *bo, int player)
@@ -139,6 +160,30 @@ char getColor(Board *bo, char move[3])
     return bo->panel[getPos(move)][1];
 }
 
+char getColumnId(int pos) 
+{
+    char l[8] = { 'a','b','c','d','e','f','g' };
+
+    while (pos > 7)
+    {
+        pos -= 8;
+    }
+
+    return l[pos];
+}
+
+int getRowId(int pos)
+{
+    int cont = 1;
+    while (pos > 7)
+    {
+        pos -= 8;
+        cont++;
+    }
+
+    return cont;
+}
+
 int isBlock(Board *bo, char start[3], char end[3]) {
     int s, e;
     int t1, t2;
@@ -156,7 +201,7 @@ int isBlock(Board *bo, char start[3], char end[3]) {
             t1 = -1;
         }
 
-        for (int i = 1; i < e - s; i++)
+        for (int i = 1; i <= e - s; i++)
         {
             char pos[3] = { getColumn(start), (getRow(start) + i*t1) + '0', '\n' };
             if (getColor(bo, pos) != ' ')
@@ -261,201 +306,234 @@ int isMove(Board *bo, char move[5])
     
     if (pieceS[1] != pieceE[1])     // La pieza es de distinto color
     {
-        if (pieceE[0] != 'R')       // La pieza no es un rey
+        switch (pieceS[0])
         {
-            switch (pieceS[0])
+        case 'P':         
+
+            if (getPos(start) + 8 * t == getPos(end) && getPiece(bo, end) == ' ')  // Mover normal
             {
-            case 'P':         
-
-                if (getPos(start) + 8 * t == getPos(end) && getPiece(bo, end) == ' ')  // Mover normal
-                {
-                    return 1;
-                }
-                else if ( (getPos(start) + 7 * t == getPos(end) || getPos(start) + 9 * t == getPos(end)) && pieceE[0] != ' ') //Comer
-                {
-                    return 1;
-                }               
-                else if (getPos(start) + 16 * t == getPos(end) && isBlock(bo, start, end) == 0 && getPiece(bo, end) == ' ')  // Avanzar 2 casillas 
-                {
-                    if ( (t == 1 && getRow(start) == 2) || (t == -1 && getRow(start) == 7))
-                    {
-                        return 1;
-                    }
-                }
-    
-                break;
-            
-            case 'C':
-
-                if (getColumn(start) != 'a') 
-                {  
-                    if (getPos(start) + 15 == getPos(end) && getRow(start) < 7)        
-                    {
-                        return 1;
-                    }
-                    else if (getPos(start) - 17 == getPos(end) && getRow(start) > 2)        
-                    {
-                        return 1;
-                    }
-                    else if (getColumn(start) != 'b')
-                    {
-                        if (getPos(start) + 6 == getPos(end) && getRow(start) != 8)        
-                        {
-                            return 1;
-                        }
-                        else if (getPos(start) - 10 == getPos(end) && getRow(start) != 1)   
-                        {
-                            return 1;
-                        }
-                    }
-                }
-
-                if (getColumn(start) != 'h')
-                {
-                    if (getPos(start) + 17 == getPos(end) && getRow(start) < 7)        
-                    {
-                        return 1;
-                    }
-                    else if (getPos(start) - 15 == getPos(end) && getRow(start) > 2)        
-                    {
-                        return 1;
-                    }
-                    else if (getColumn(start) != 'g')
-                    {
-                        if (getPos(start) + 10 == getPos(end) && getRow(start) != 8)         
-                        {
-                            return 1;
-                        }
-                        else if (getPos(start) - 6 == getPos(end) && getRow(start) != 1)  
-                        {
-                            return 1;
-                        }
-                    }
-                }
-
-                break;
-
-            case 'A':
-
-                if (getColumn(start) != getColumn(end) && getRow(start) != getRow(end) && isBlock(bo, start, end) == 0)
-                {
-                    return 1;
-                }
-
-                break;
-
-            case 'T':
-
-                if (getColumn(start) == getColumn(end) && isBlock(bo, start, end) == 0)
-                {
-                    return 1;
-                }
-                else if (getRow(start) == getRow(end) && isBlock(bo, start, end) == 0)
-                {
-                    return 1;
-                }
-
-                break;
-
-            case 'D':
-
-                if (getColumn(start) == getColumn(end) && isBlock(bo, start, end) == 0)
-                {
-                    return 1;
-                }
-                else if (getRow(start) == getRow(end) && isBlock(bo, start, end) == 0)
-                {
-                    return 1;
-                }
-                if (getColumn(start) != getColumn(end) && getRow(start) != getRow(end) && isBlock(bo, start, end) == 0)
-                {
-                    return 1;
-                }
-                break;
-            case 'R':
-                
-                if ((getPos(start) - 1 == getPos(end) || getPos(start) + 7 == getPos(end)       // Movimiento lateral izquierdo
-                    || getPos(start) - 9 == getPos(end)) && (getColumn(start) != 'a'))
-                {
-                    return 1;
-                }
-                else if ((getPos(start) + 1 == getPos(end) || getPos(start) + 9 == getPos(end)  // Movimiento lateral derecho
-                    || getPos(start) - 7 == getPos(end)) && (getColumn(start) != 'h'))
-                {
-                    return 1;
-                }
-                else if (getPos(start) + 8 == getPos(end) || getPos(start) - 8 == getPos(end))  // Movimiento Frontal
-                {
-                    return 1;
-                }
-                else if (getColor(bo, start) == 'b') 
-                {
-                    if (getPos(start) + 2 == getPos(end) && bo->castl[1] == 1 && isBlock(bo, "e1", "h1") == 0)
-                    {
-                        movePiece(bo, "h1f1\0");
-                        return 1;
-                    }
-                    else if (getPos(start) - 2 == getPos(end) && bo->castl[0] == 1 && isBlock(bo, "e1", "a1") == 0)
-                    {
-                        movePiece(bo, "a1d1\0");
-                        return 1;
-                    }
-                }
-                else
-                {
-                    if (getPos(start) + 2 == getPos(end) && bo->castl[3] == 1 && isBlock(bo, "e8", "h8") == 0)
-                    {
-                        //move(bo, "h8f8\0");
-                        return 1;
-                    }
-                    else if (getPos(start) - 2 == getPos(end) && bo->castl[3] == 1 && isBlock(bo, "e8", "a8") == 0)
-                    {
-                        //move(bo, "a8d8\0");
-                        return 1;
-                    }
-                }
-                break;
-
-            default:
-                break;
+                return 1;
             }
+            else if ( (getPos(start) + 7 * t == getPos(end) || getPos(start) + 9 * t == getPos(end)) && pieceE[0] != ' ') //Comer
+            {
+                return 1;
+            }               
+            else if (getPos(start) + 16 * t == getPos(end) && isBlock(bo, start, end) == 0 && getPiece(bo, end) == ' ')  // Avanzar 2 casillas 
+            {
+                if ( (t == 1 && getRow(start) == 2) || (t == -1 && getRow(start) == 7))
+                {
+                    return 1;
+                }
+            }
+    
+            break;
+            
+        case 'C':
+
+            if (getColumn(start) != 'a') 
+            {  
+                if (getPos(start) + 15 == getPos(end) && getRow(start) < 7)        
+                {
+                    return 1;
+                }
+                else if (getPos(start) - 17 == getPos(end) && getRow(start) > 2)        
+                {
+                    return 1;
+                }
+                else if (getColumn(start) != 'b')
+                {
+                    if (getPos(start) + 6 == getPos(end) && getRow(start) != 8)        
+                    {
+                        return 1;
+                    }
+                    else if (getPos(start) - 10 == getPos(end) && getRow(start) != 1)   
+                    {
+                        return 1;
+                    }
+                }
+            }
+
+            if (getColumn(start) != 'h')
+            {
+                if (getPos(start) + 17 == getPos(end) && getRow(start) < 7)        
+                {
+                    return 1;
+                }
+                else if (getPos(start) - 15 == getPos(end) && getRow(start) > 2)        
+                {
+                    return 1;
+                }
+                else if (getColumn(start) != 'g')
+                {
+                    if (getPos(start) + 10 == getPos(end) && getRow(start) != 8)         
+                    {
+                        return 1;
+                    }
+                    else if (getPos(start) - 6 == getPos(end) && getRow(start) != 1)  
+                    {
+                        return 1;
+                    }
+                }
+            }
+
+            break;
+
+        case 'A':
+
+            if (getColumn(start) != getColumn(end) && getRow(start) != getRow(end) && isBlock(bo, start, end) == 0)
+            {
+                return 1;
+            }
+
+            break;
+
+        case 'T':
+
+            if (getColumn(start) == getColumn(end) && isBlock(bo, start, end) == 0)
+            {
+                return 1;
+            }
+            else if (getRow(start) == getRow(end) && isBlock(bo, start, end) == 0)
+            {
+                return 1;
+            }
+
+            break;
+
+        case 'D':
+
+            if (getColumn(start) == getColumn(end) && isBlock(bo, start, end) == 0)
+            {
+                return 1;
+            }
+            else if (getRow(start) == getRow(end) && isBlock(bo, start, end) == 0)
+            {
+                return 1;
+            }
+            if (getColumn(start) != getColumn(end) && getRow(start) != getRow(end) && isBlock(bo, start, end) == 0)
+            {
+                return 1;
+            }
+
+            break;
+
+        case 'R':
+                
+            if ((getPos(start) - 1 == getPos(end) || getPos(start) + 7 == getPos(end)       // Movimiento lateral izquierdo
+                || getPos(start) - 9 == getPos(end)) && (getColumn(start) != 'a'))
+            {
+                return 1;
+            }
+            else if ((getPos(start) + 1 == getPos(end) || getPos(start) + 9 == getPos(end)  // Movimiento lateral derecho
+                || getPos(start) - 7 == getPos(end)) && (getColumn(start) != 'h'))
+            {
+                return 1;
+            }
+            else if (getPos(start) + 8 == getPos(end) || getPos(start) - 8 == getPos(end))  // Movimiento Frontal
+            {
+                return 1;
+            }
+            else if (getColor(bo, start) == 'b') 
+            {
+                if (getPos(start) + 2 == getPos(end) && bo->castl[1] == 1 && isBlock(bo, "e1", "h1") == 0 
+                    && isSpot(bo,"f1\0",'n') == 0 && isSpot(bo, "g1\0", 'n') == 0)
+                {
+                    movePiece(bo, "h1f1\0");
+                    return 1;
+                }
+                else if (getPos(start) - 2 == getPos(end) && bo->castl[0] == 1 && isBlock(bo, "e1", "a1") == 0
+                    && isSpot(bo, "c1\0", 'n') == 0 && isSpot(bo, "d1\0", 'n') == 0)
+                {
+                    movePiece(bo, "a1d1\0");
+                    return 1;
+                }
+            }
+            else
+            {
+                if (getPos(start) + 2 == getPos(end) && bo->castl[3] == 1 && isBlock(bo, "e8", "h8") == 0
+                    && isSpot(bo, "f8\0", 'n') == 0 && isSpot(bo, "g8\0", 'n') == 0)
+                {
+                    movePiece(bo, "h8f8\0");
+                    return 1;
+                }
+                else if (getPos(start) - 2 == getPos(end) && bo->castl[2] == 1 && isBlock(bo, "e8", "a8") == 0
+                    && isSpot(bo, "c8\0", 'b') == 0 && isSpot(bo, "d8\0", 'b') == 0)
+                {
+                    movePiece(bo, "a8d8\0");
+                    return 1;
+                }
+            }
+            break;
+
+        default:
+            break;
         }
+        
     }
     
-    printf("\nMovimiento no valido");
     return 0;
 }
 
 void checkCastle(Board *bo)
 {
- 
-    if (bo->panel[getPos("e8") != "Rb"] && (bo->castl[2] == 1 || bo->castl[3] == 1))
+    if (bo->castl[0] == 1 || bo->castl[1] == 1)
     {
-        bo->castl[0] = 0;
-        bo->castl[1] = 0;
+        if (getColor(bo,"e1") != 'b' || getPiece(bo, "e1") != 'R')
+        {
+            bo->castl[0] = 0;
+            bo->castl[1] = 0;
+        }    
+        else
+        {
+            if (getColor(bo, "a1") != 'b' || getPiece(bo, "a1") != 'T')
+            {
+                bo->castl[0] = 0;
+            }
+            else if (getColor(bo, "h1") != 'b' || getPiece(bo, "a1") != 'T')
+            {
+                bo->castl[1] = 0;
+            }
+        }
     }
-    else if (bo->panel[getPos("a1") != "Tb"] && bo->castl[0] == 1)
+
+    if (bo->castl[1] == 1 || bo->castl[2] == 1)
     {
-        bo->castl[0] = 0;
+        if (getColor(bo, "e8") != 'n' || getPiece(bo, "e8") != 'R')
+        {
+            bo->castl[2] = 0;
+            bo->castl[3] = 0;
+        }
+        else
+        {
+            if (getColor(bo, "a8") != 'n' || getPiece(bo, "a8") != 'T')
+            {
+                bo->castl[2] = 0;
+            }
+            else if (getColor(bo, "h8") != 'n' || getPiece(bo, "h8") != 'T')
+            {
+                bo->castl[3] = 0;
+            }
+        }
     }
-    else if (bo->panel[getPos("h1") != "Tb"] && bo->castl[1] == 1)
+}
+
+int isSpot(Board* bo, char pos[3], char color)
+{
+
+    for (int i = 0; i < 64; i++)
     {
-        bo->castl[1] = 0;
+        if ( bo->panel[i][1] == color)
+        {
+            char move[5] = { getColumnId(i), getRowId(i) + '0', getColumn(pos), getRow(pos) + '0','\0' };
+
+            if (isMove(bo, move))
+            {
+                return 1;
+            }
+       
+        }
     }
-    
-    if (bo->panel[getPos("e8") != "Rn"] && (bo->castl[2] == 1 || bo->castl[3] == 1))
-    {
-        bo->castl[2] = 0;
-        bo->castl[3] = 0;
-    }
-    
-    else if (bo->panel[getPos("a8") != "Tn"] && bo->castl[2] == 1)
-    {
-        bo->castl[2] = 0;
-    }
-    else if (bo->panel[getPos("h8") != "Tn"] && bo->castl[3] == 1)
-    {
-        bo->castl[3] = 0;
-    }
+
+    return 0;
 
 }

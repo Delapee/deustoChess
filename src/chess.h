@@ -27,9 +27,10 @@ char getColor(Board *bo, char move[3]);     // Devuelve el color
 
 // Movimento
 void movePiece(Board *bo, char move[5]);                    // Mueve una pieza de a -> b
-int isMove(Board *bo, char move[5]);                        // Comprueba si es posible mover de a -> b
+int isMove(Board *bo, char move[5], int protec);            // Comprueba si es posible mover de a -> b
 int isSpot(Board* bo, char pos[3], char color);             // Comprueba si una pieza esta amenazada por otra de X color
 int checkWin(Board* bo, char player);                       // Devuelve 0 - Nada | 1 - Jaque | 2 - Mate
 void checkCastle(Board* bo);                                // Comprobar si se rompe el enroque
+void isPromote(Board* bo);
 
 #endif // CHESS

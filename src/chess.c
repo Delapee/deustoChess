@@ -7,16 +7,20 @@ void test(void)
     Board bo;
     Board *bi = &bo;
     char jugada[5];
+    char estatus[80];
     prepareBoard(bi);
-    loadPanel(bi, "e1/d1/a1h1/c1f1/b1g1/a2b2c2d2e2f2g2h2/|e8/d8/a8h8/c8f8/b8g8/a7b7c7d7e7f7g7h7/");
+    loadPanel(bi, "g4/d1/a1h1/c1f1/b1g1/a2b2c2d2e2f2g2h2/|e8/d8/a8h8/c8f8/b8g8/a7b7c7d7e5f7g7h7/");
+    //loadPanel(bi, "e3//////|e8/////e5/");
     do {
+        savePanel(bi, estatus);
+        printf("%s", estatus);
         printBoard(bi, 0);   
         printf("\n\nSeleccione una jugada: ");
         gets_s(jugada, 5);
 
-        if (isMove(bi, jugada)) movePiece(bi, jugada);
+        if (isMove(bi, jugada,0)) movePiece(bi, jugada);
         checkCastle(bi);
-
+        isPromote(bi);
         system("cls");
     } while (jugada[0] != 'i');
 
@@ -261,8 +265,8 @@ int isBlock(Board *bo, char start[3], char end[3]) {
         }
         else if (getRow(start) - getRow(end) > 0 && getColumn(start) - getColumn(end) < 0)      // +-
         {
-            s = getColumn(start);
-            e = getColumn(end);
+            s = getColumn(end);
+            e = getColumn(start);
             t1 = -1;
             t2 = 1;
         }
@@ -296,7 +300,7 @@ void movePiece(Board *bo, char move[5])
         
 }
 
-int isMove(Board *bo, char move[5])
+int isMove(Board *bo, char move[5], int protec)
 {
     char start[3] = { move[0], move[1], '\0' };
     char end[3] = { move[2], move[3], '\0' };
@@ -304,21 +308,22 @@ int isMove(Board *bo, char move[5])
     char pieceE[3] = { getPiece(bo, end), getColor(bo, end) , '\0' };
     int t = (pieceS[1] == 'b') ? 1 : -1;
     
-    if (pieceS[1] != pieceE[1])     // La pieza es de distinto color
+    if (pieceS[1] != pieceE[1] || protec == 1)     // La pieza es de distinto color
     {
         switch (pieceS[0])
         {
         case 'P':         
 
-            if (getPos(start) + 8 * t == getPos(end) && getPiece(bo, end) == ' ')  // Mover normal
+            if (getPos(start) + 8 * t == getPos(end) && getPiece(bo, end) == ' ' && protec != 1)  // Mover normal
             {
                 return 1;
             }
-            else if ( (getPos(start) + 7 * t == getPos(end) || getPos(start) + 9 * t == getPos(end)) && pieceE[0] != ' ') //Comer
+            else if (( (getPos(start) + 7 * t == getPos(end) || getPos(start) + 9 * t == getPos(end)) && pieceE[0] != ' ') 
+                || protec && ((getPos(start) + 7 * t == getPos(end) || getPos(start) + 9 * t == getPos(end)) && pieceE[0] == ' '))  //Comer
             {
                 return 1;
             }               
-            else if (getPos(start) + 16 * t == getPos(end) && bo->panel[getPos(start) + 8 * t][0] == ' ' && getPiece(bo, end) == ' ')  // Avanzar 2 casillas 
+            else if ((getPos(start) + 16 * t == getPos(end) && bo->panel[getPos(start) + 8 * t][0] == ' ' && getPiece(bo, end) == ' ') && protec != 1)  // Avanzar 2 casillas 
             {
                 if ( (t == 1 && getRow(start) == 2) || (t == -1 && getRow(start) == 7))
                 {
@@ -418,49 +423,51 @@ int isMove(Board *bo, char move[5])
             break;
 
         case 'R':
-                
-            if ((getPos(start) - 1 == getPos(end) || getPos(start) + 7 == getPos(end)       // Movimiento lateral izquierdo
-                || getPos(start) - 9 == getPos(end)) && (getColumn(start) != 'a'))
+            if (isSpot(bo, end, (pieceS[1] == 'b')?'n':'b') == 0)
             {
-                return 1;
-            }
-            else if ((getPos(start) + 1 == getPos(end) || getPos(start) + 9 == getPos(end)  // Movimiento lateral derecho
-                || getPos(start) - 7 == getPos(end)) && (getColumn(start) != 'h'))
-            {
-                return 1;
-            }
-            else if (getPos(start) + 8 == getPos(end) || getPos(start) - 8 == getPos(end))  // Movimiento Frontal
-            {
-                return 1;
-            }
-            else if (getColor(bo, start) == 'b') 
-            {
-                if (getPos(start) + 2 == getPos(end) && bo->castl[1] == 1 && isBlock(bo, "e1", "h1") == 0 
-                    && isSpot(bo,"f1\0",'n') == 0 && isSpot(bo, "g1\0", 'n') == 0)
+                if ((getPos(start) - 1 == getPos(end) || getPos(start) + 7 == getPos(end)       // Movimiento lateral izquierdo
+                    || getPos(start) - 9 == getPos(end)) && (getColumn(start) != 'a'))
                 {
-                    movePiece(bo, "h1f1\0");
                     return 1;
                 }
-                else if (getPos(start) - 2 == getPos(end) && bo->castl[0] == 1 && isBlock(bo, "e1", "a1") == 0
-                    && isSpot(bo, "c1\0", 'n') == 0 && isSpot(bo, "d1\0", 'n') == 0)
+                else if ((getPos(start) + 1 == getPos(end) || getPos(start) + 9 == getPos(end)  // Movimiento lateral derecho
+                    || getPos(start) - 7 == getPos(end)) && (getColumn(start) != 'h'))
                 {
-                    movePiece(bo, "a1d1\0");
                     return 1;
                 }
-            }
-            else
-            {
-                if (getPos(start) + 2 == getPos(end) && bo->castl[3] == 1 && isBlock(bo, "e8", "h8") == 0
-                    && isSpot(bo, "f8\0", 'n') == 0 && isSpot(bo, "g8\0", 'n') == 0)
+                else if (getPos(start) + 8 == getPos(end) || getPos(start) - 8 == getPos(end))  // Movimiento Frontal
                 {
-                    movePiece(bo, "h8f8\0");
                     return 1;
                 }
-                else if (getPos(start) - 2 == getPos(end) && bo->castl[2] == 1 && isBlock(bo, "e8", "a8") == 0
-                    && isSpot(bo, "c8\0", 'b') == 0 && isSpot(bo, "d8\0", 'b') == 0)
+                else if (getColor(bo, start) == 'b') 
                 {
-                    movePiece(bo, "a8d8\0");
-                    return 1;
+                    if (getPos(start) + 2 == getPos(end) && bo->castl[1] == 1 && isBlock(bo, "e1", "h1") == 0 
+                        && isSpot(bo,"f1\0",'n') == 0 && isSpot(bo, "g1\0", 'n') == 0)
+                    {
+                        movePiece(bo, "h1f1\0");
+                        return 1;
+                    }
+                    else if (getPos(start) - 2 == getPos(end) && bo->castl[0] == 1 && isBlock(bo, "e1", "a1") == 0
+                        && isSpot(bo, "c1\0", 'n') == 0 && isSpot(bo, "d1\0", 'n') == 0)
+                    {
+                        movePiece(bo, "a1d1\0");
+                        return 1;
+                    }
+                }
+                else
+                {
+                    if (getPos(start) + 2 == getPos(end) && bo->castl[3] == 1 && isBlock(bo, "e8", "h8") == 0
+                        && isSpot(bo, "f8\0", 'n') == 0 && isSpot(bo, "g8\0", 'n') == 0)
+                    {
+                        movePiece(bo, "h8f8\0");
+                        return 1;
+                    }
+                    else if (getPos(start) - 2 == getPos(end) && bo->castl[2] == 1 && isBlock(bo, "e8", "a8") == 0
+                        && isSpot(bo, "c8\0", 'b') == 0 && isSpot(bo, "d8\0", 'b') == 0)
+                    {
+                        movePiece(bo, "a8d8\0");
+                        return 1;
+                    }
                 }
             }
             break;
@@ -524,15 +531,19 @@ int isSpot(Board* bo, char pos[3], char color)
         if ( bo->panel[i][1] == color)
         {
             char move[5] = { getColumnId(i), getRowId(i) + '0', getColumn(pos), getRow(pos) + '0','\0' };
-            if (isMove(bo, move)) return 1;
+            if (bo->panel[i][0] != 'R' && isMove(bo, move, 1) ) return 1;
         }
     }
 
     return 0;
 }
 
-int checkWin(Board* bo, char player) 
+void isPromote(Board* bo)
 {
-
+    for (size_t i = 0; i < 8; i++)
+    {
+        if (bo->panel[i][0] == 'P' && bo->panel[i][1] == 'n') bo->panel[i][0] = 'D';
+        if (bo->panel[63-i][0] == 'P' && bo->panel[63 - i][1] == 'b') bo->panel[63 - i][0] = 'D';
+    }
 
 }

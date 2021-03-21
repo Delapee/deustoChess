@@ -27,7 +27,6 @@ void cleanStdin() {
 
 int selectMenuOption() {
     int option, read;
-    char enter;
     bool rigth;
 
     do {
@@ -43,9 +42,9 @@ int selectMenuOption() {
         printf("+---------------------------------------------+\n");
 
         printf("\nSelecciona una opcion: ");
-        read = scanf("%d%c", &option, &enter);
+        read = scanf("%d", &option);
 
-        if (read != 2 || enter != '\n' || option < 0 || option > 5) {
+        if (read != 1 || option < 0 || option > 5) {
             cleanStdin();
             system("cls");
             printf("\nValor incorrecto, debe estar entre 0 y 5.\n");

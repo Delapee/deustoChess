@@ -6,6 +6,7 @@
 
 
 #define TXT "..\\..\\..\\..\\data\\puzzles.txt"
+typedef enum { false, true } bool;
 
 
 void initPuzzles()
@@ -17,9 +18,8 @@ void initPuzzles()
 	if (f == NULL) {
 		printf("\nERROR!! No se puede abrir el archivo\n");
 	}
-	else 
+	else
 	{
-		int pPosition = 0;
 		int pSize = nRow(f);
 		Puzzle** puzzles = (Puzzle**)malloc(pSize * sizeof(Puzzle*));
 
@@ -27,8 +27,7 @@ void initPuzzles()
 		readPuzzle(f, puzzles);
 		fclose(f);
 
-		loadPuzzle(nextPuzzle(puzzles, &pPosition));
-		
+		playPuzzle(puzzles, pSize);
 	}
 }
 
@@ -89,18 +88,75 @@ int nRow(FILE* f)
 	return maxr;
 }
 
-void loadPuzzle(Puzzle* puzzle)
+void playPuzzle(Puzzle** puzzles, int pSize)
+{
+	int option;
+	int pPosition = -1;
+	int lifes = 3;
+	int pass = 0;
+	int fail = 0;
+	bool next = true;
+	do
+	{
+		if (pPosition != -1)
+		{
+			printf("\nLLevas acertados %d de %d puzzles", pass, pPosition + 1);
+			Sleep(1800);
+			system("cls");
+		}
+		option = loadPuzzle(nextPuzzle(puzzles, &pPosition));
+		if (option == 1)
+		{
+			pass++;
+			printf("\nFelicidades has resuelto el problema");
+			printf("\n\nVidas %d de 3", lifes);
+			Sleep(1500);
+		}
+		else
+		{
+			fail++;
+			lifes--;
+			printf("\nHas fallado");
+			printf("\n\nVidas %d de 3", lifes);
+			Sleep(1500);
+		}
+
+		if (pPosition + 1 >= pSize || lifes == 0)
+		{
+			result(pSize, pPosition, pass, fail, lifes);
+			next = false;
+		}
+
+		system("cls");
+	} while (next);
+}
+
+void result(int pSize, int pPosition, int pass, int fail, int lifes)
+{
+	system("cls");
+	if (lifes > 0) printf("\nFelicidades has terminado de resolver los puzzles\n");
+	printf("\n- Puzzles totales: %d\n", pSize);
+	printf("- Puzzles jugados: %d\n", pPosition + 1);
+	printf("\t- Resueltos: %d\n", pass);
+	printf("\t- Resueltos: %d\n", fail);
+	Sleep(3000);
+}
+
+int loadPuzzle(Puzzle* puzzle)
 {
 	Board bo;
 	Board* bi = &bo;
 	char jugada[5];
+	bool rigth = true;
+	int code = 0;
 	prepareBoard(bi);
 	
 	loadPanel(&bo, puzzle->initialState);
-	//printBoard(bi, 1);
 	do {
 		printBoard(bi, 1);
-		printf("\n\nSeleccione una jugada: ");
+		if (puzzle->player == 0) printf("\n\nMueven blancas");
+		else printf("\n\nMueven Negras");
+		printf("\nSeleccione una jugada: ");
 		gets_s(jugada, 5);
 
 		if (isMove(bi, jugada, 0))
@@ -112,25 +168,30 @@ void loadPuzzle(Puzzle* puzzle)
 				{
 					system("cls");
 					printBoard(bi, 1);
-					Sleep(800);
+					Sleep(1200);
 					puzzle->mState++;
 					movePiece(bi, puzzle->movementStates[puzzle->mState]);
 					puzzle->mState++;
 				}
 				else if(puzzle->mState == puzzle->movements - 1)
 				{
-					// Tengo que pensar
+					system("cls");
+					printBoard(bi, 1);
+					Sleep(800);
+					code = 1;
+					rigth = false;
 				}
-				
 			}
 			else
 			{
-				// Tengo que pensar
+				rigth = false;
 			}
 		}
 
 		system("cls");
-	} while (jugada[0] != 'i');
+	} while (rigth);
+
+	return code;
 }
 
 Puzzle* nextPuzzle(Puzzle** puzzles, int* pPosition)

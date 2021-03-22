@@ -27,7 +27,8 @@ void cleanStdin() {
 }
 
 int selectMenuOption() {
-    int option, read;
+    int read;
+    char option;
     bool rigth;
 
     do {
@@ -37,15 +38,16 @@ int selectMenuOption() {
         printf("| 1. Jugar Local                              |\n");
         printf("| 2. Jugar Online                             |\n");
         printf("| 3. Jugar contra IA                          |\n");
-        printf("| 4. Puzzles                                  |\n");
-        printf("| 5. Ver partida repetida	              |\n");
+        printf("| 4. Puzzles Rush                             |\n");
+        printf("| 5. Creador de puzzles                       |\n");
+        printf("| 6. Ver partida repetida                     |\n");
         printf("| 0. Salir                                    |\n");
         printf("+---------------------------------------------+\n");
 
         printf("\nSelecciona una opcion: ");
-        read = scanf("%d", &option);
+        read = scanf("%c", &option);
 
-        if (read != 1 || option < 0 || option > 5) {
+        if (read != 1 || option == '\n' || option - '0' < 0 || option - '0' > 6) {
             cleanStdin();
             system("cls");
             printf("\nValor incorrecto, debe estar entre 0 y 5.\n");
@@ -54,7 +56,7 @@ int selectMenuOption() {
         else rigth = true;
     } while (!rigth);
 
-    return option;
+    return option - '0';
 }
 
 void selectOption(int option)
@@ -78,6 +80,10 @@ void selectOption(int option)
         initPuzzles();
         break;
     case 5:
+        printf("Opcion: %d\n", option);
+        //Implementar
+        break;
+    case 6:
         printf("Opcion: %d\n", option);
         //Implementar
         break;

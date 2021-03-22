@@ -7,18 +7,15 @@ void test(void)
     Board bo;
     Board *bi = &bo;
     char jugada[5];
-    char estatus[80];
     prepareBoard(bi);
-    loadPanel(bi, "g4/d1/a1h1/c1f1/b1g1/a2b2c2d2e2f2g2h2/|e8/d8/a8h8/c8f8/b8g8/a7b7c7d7e5f7g7h7/");
-    //loadPanel(bi, "e3//////|e8/////e5/");
+    loadPanel(bi, sPos);
+
     do {
-        savePanel(bi, estatus);
-        printf("%s", estatus);
         printBoard(bi, 0);   
         printf("\n\nSeleccione una jugada: ");
-        gets_s(jugada, 5);
+        scanf("%s", &jugada);
 
-        if (isMove(bi, jugada,0)) movePiece(bi, jugada);
+        if(isMove(bi, jugada, 0)) if (isNailed(bi, jugada) == 0) movePiece(bi, jugada);
         checkCastle(bi);
         isPromote(bi);
         system("cls");
@@ -27,15 +24,19 @@ void test(void)
 }
 
 // Metodos tablero
-void prepareBoard(Board* bo) {
-
+void clearPanel(Board* bo) 
+{
     for (size_t i = 0; i < 64; i++)
     {
         bo->panel[i][0] = ' ';
         bo->panel[i][1] = ' ';
         bo->panel[i][2] = '\0';
     }
+}
 
+void prepareBoard(Board* bo) 
+{
+    clearPanel(bo);
     bo->castl[0] = 1;
     bo->castl[1] = 1;
     bo->castl[2] = 1;
@@ -44,9 +45,13 @@ void prepareBoard(Board* bo) {
 
 void loadPanel(Board *bo, char status[80])
 {
+    clearPanel(bo);
+    char nStatus[80];
     char white[40];
     char black[40];
-    char *token = strtok(status, "|");
+    
+    strcpy(nStatus, status);
+    char *token = strtok(nStatus, "|");
     strcpy(white, token);
     token = strtok(NULL, "|");
     strcpy(black, token);
@@ -105,7 +110,7 @@ void savePanel(Board* bo, char status[80]) {
 
 void printBoard(Board *bo, int player)
 {   
-    printf("\n");
+    printf("\n\n");
     char s = 'a';
     int t = 1;
     for (int i = 56; i >= 0; i -= 8)
@@ -308,7 +313,7 @@ int isMove(Board *bo, char move[5], int protec)
     char pieceE[3] = { getPiece(bo, end), getColor(bo, end) , '\0' };
     int t = (pieceS[1] == 'b') ? 1 : -1;
     
-    if (pieceS[1] != pieceE[1] || protec == 1)     // La pieza es de distinto color
+    if ((pieceS[1] != pieceE[1] && end[1] - '0' < 9 && end[1] - '0' > 0) || protec == 1)     // La pieza es de distinto color
     {
         switch (pieceS[0])
         {
@@ -546,4 +551,21 @@ void isPromote(Board* bo)
         if (bo->panel[63-i][0] == 'P' && bo->panel[63 - i][1] == 'b') bo->panel[63 - i][0] = 'D';
     }
 
+}
+
+int isNailed(Board* bo, char move[5]) {
+    Board aux;
+    char nStatus[80];
+    savePanel(bo, nStatus);
+    loadPanel(&aux, nStatus);
+    char a[2] = { move[0],move[1] };
+    char* token = strtok(nStatus, "|");
+    
+    if (getColor(bo, a) == 'n') token = strtok(NULL, "|");
+   
+    char kingPos[2] = { token[0], token[1] };
+    movePiece(&aux, move);
+
+    if (isSpot(&aux, kingPos, (getColor(bo, kingPos) == 'b')? 'n' : 'b')) return 1;
+    else return 0;
 }

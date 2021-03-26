@@ -1,11 +1,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
+#include <time.h>
 #include "puzzle.h"
 #include "chess.h"
 
 
 #define TXT "..\\..\\..\\..\\data\\puzzles.txt"
+
 typedef enum { false, true } bool;
 
 
@@ -27,7 +29,17 @@ void initPuzzles()
 		readPuzzle(f, puzzles);
 		fclose(f);
 
+		randomPuzzles(puzzles, pSize);
 		playPuzzle(puzzles, pSize);
+
+		int i;
+		for (i = 0; i < pSize; i++)
+		{
+			free(puzzles[i]);
+			puzzles[i] = NULL;
+		}
+		free(puzzles);
+		puzzles = NULL;
 	}
 }
 
@@ -90,7 +102,7 @@ int nRow(FILE* f)
 
 void playPuzzle(Puzzle** puzzles, int pSize)
 {
-	int option;
+	int puzzleResult;
 	int pPosition = -1;
 	int lifes = 3;
 	int pass = 0;
@@ -104,8 +116,8 @@ void playPuzzle(Puzzle** puzzles, int pSize)
 			Sleep(1800);
 			system("cls");
 		}
-		option = loadPuzzle(nextPuzzle(puzzles, &pPosition));
-		if (option == 1)
+		puzzleResult = loadPuzzle(nextPuzzle(puzzles, &pPosition));
+		if (puzzleResult == 1)
 		{
 			pass++;
 			printf("\nFelicidades has resuelto el problema");
@@ -148,7 +160,6 @@ int loadPuzzle(Puzzle* puzzle)
 	Board* bi = &bo;
 	char jugada[5];
 	bool rigth = true;
-	int code = 0;
 	prepareBoard(bi);
 	
 	loadPanel(&bo, puzzle->initialState);
@@ -178,8 +189,7 @@ int loadPuzzle(Puzzle* puzzle)
 					system("cls");
 					printBoard(bi, 1);
 					Sleep(800);
-					code = 1;
-					rigth = false;
+					return 1;
 				}
 			}
 			else
@@ -191,7 +201,7 @@ int loadPuzzle(Puzzle* puzzle)
 		system("cls");
 	} while (rigth);
 
-	return code;
+	return 0;
 }
 
 Puzzle* nextPuzzle(Puzzle** puzzles, int* pPosition)
@@ -209,4 +219,17 @@ int checkMovement(char* playerMove, char* rigthMove)
 	}
 
 	return 1;
+}
+
+void randomPuzzles(Puzzle** puzzles, int size)
+{
+	srand(time(NULL));
+	int i;
+	for (i = 0; i < size - 1; i++)
+	{
+		int j = i + rand() / (RAND_MAX / (size - i) + 1);
+		Puzzle* p = puzzles[j];
+		puzzles[j] = puzzles[i];
+		puzzles[i] = p;
+	}
 }

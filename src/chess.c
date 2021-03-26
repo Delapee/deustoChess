@@ -11,11 +11,15 @@ void test(void)
     loadPanel(bi, sPos);
 
     do {
-        printBoard(bi, 0);   
+
+        printBoard(bi, 0);
+        (isCheck(bi, 'n')) ? printf("El rey amenazado") : printf("El rey pendejo");
         printf("\n\nSeleccione una jugada: ");
         scanf("%s", &jugada);
 
-        if(isMove(bi, jugada, 0)) if (isNailed(bi, jugada) == 0) movePiece(bi, jugada);
+        if (isMove(bi, jugada, 0) && isNailed(bi, jugada) == 0) 
+            movePiece(bi, jugada);
+        
         checkCastle(bi);
         isPromote(bi);
         system("cls");
@@ -562,10 +566,20 @@ int isNailed(Board* bo, char move[5]) {
     char* token = strtok(nStatus, "|");
     
     if (getColor(bo, a) == 'n') token = strtok(NULL, "|");
-   
     char kingPos[2] = { token[0], token[1] };
     movePiece(&aux, move);
 
     if (isSpot(&aux, kingPos, (getColor(bo, kingPos) == 'b')? 'n' : 'b')) return 1;
+    else return 0;
+}
+
+int isCheck(Board* bo, char player) {
+    char nStatus[80];
+    savePanel(bo, nStatus);
+    char* token = strtok(nStatus, "|");
+    if (player != 'n') token = strtok(NULL, "|");
+    char kingPos[2] = { token[0], token[1] };
+
+    if (isSpot(bo, kingPos, player)) return 1;
     else return 0;
 }

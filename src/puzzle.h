@@ -19,7 +19,7 @@ void playPuzzle(Puzzle** puzzles, int pSize);
 void result(int pSize, int pPosition, int pass, int fail, int lifes);
 int loadPuzzle(Puzzle* puzzle);
 Puzzle* nextPuzzle(Puzzle** puzzles, int* pPosition);
-//Puzzle** randomPuzzles(Puzzle** puzzles, int size);
 int checkMovement(char* playerMove, char* rigthMove);
+void randomPuzzles(Puzzle** puzzles, int size);
 
 #endif

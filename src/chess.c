@@ -8,12 +8,25 @@ void test(void)
     Board *bi = &bo;
     char jugada[5];
     prepareBoard(bi);
-    loadPanel(bi, sPos);
-
+    //lloadPanel(bi, sPos);
+    loadPanel(bi, "e1/d1/a1h1/c1f1/b1g1/a2b2c2d2e2f2g2h2/|e8/d8/a8h8/c8f8/d3g8/a7b7c7d7e7f7g7h7/");
     do {
-
         printBoard(bi, 0);
-        (isCheck(bi, 'n')) ? printf("El rey amenazado") : printf("El rey pendejo");
+        printf("\n");
+        switch (isCheck(bi, 'n'))
+        {
+        case 0:
+            printf("No hay una puta mierda");
+            break;
+        case 1:
+            printf("Hay un puto jake");
+            break;
+        case 2:
+            printf("Hay un puto jakemate");
+            break;
+        default:
+            break;
+        }
         printf("\n\nSeleccione una jugada: ");
         scanf("%s", &jugada);
 
@@ -559,17 +572,29 @@ void isPromote(Board* bo)
 
 int isNailed(Board* bo, char move[5]) {
     Board aux;
-    char nStatus[80];
-    savePanel(bo, nStatus);
+    char nStatus[80], kingPos[3];
+    savePanel(bo, nStatus); 
     loadPanel(&aux, nStatus);
     char a[2] = { move[0],move[1] };
     char* token = strtok(nStatus, "|");
     
-    if (getColor(bo, a) == 'n') token = strtok(NULL, "|");
-    char kingPos[2] = { token[0], token[1] };
+    
     movePiece(&aux, move);
+    if (getColor(bo, a) == 'n') token = strtok(NULL, "|");
+    if (move[0] == token[0] && move[1] == token[1])
+    {
+        kingPos[0] = move[2];
+        kingPos[1] = move[3]; 
+        kingPos[2] = '\0';
+    }
+    else
+    {
+        kingPos[0] = token[0];
+        kingPos[1] = token[1];
+        kingPos[2] = '\0';
+    }
 
-    if (isSpot(&aux, kingPos, (getColor(bo, kingPos) == 'b')? 'n' : 'b')) return 1;
+    if (isSpot(&aux, kingPos, (getColor(bo, a) == 'b')? 'n' : 'b')) return 1;
     else return 0;
 }
 
@@ -579,7 +604,24 @@ int isCheck(Board* bo, char player) {
     char* token = strtok(nStatus, "|");
     if (player != 'n') token = strtok(NULL, "|");
     char kingPos[2] = { token[0], token[1] };
+    char kingAux[2] = { token[0] - 1, token[1] - 1};
 
-    if (isSpot(bo, kingPos, player)) return 1;
+    if (isSpot(bo, kingPos, player)) {
+        
+        for (size_t i = 0; i < 3; i++)
+        {
+            for (size_t j = 0; j < 3; j++)
+            {
+                char move[4] = { kingPos[0], kingPos[1], kingAux[0], kingAux[1] };
+                if (isMove(bo, move, 0)) {
+                    return 1;
+                }
+                kingAux[0] = kingAux[0] + 1;
+            }
+            kingAux[1] = kingAux[1] + 1;
+            kingAux[0] = kingPos[0] - 1;
+        }
+        return 2;
+    }
     else return 0;
 }

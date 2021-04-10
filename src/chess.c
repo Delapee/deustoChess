@@ -2,44 +2,6 @@
 #include <string.h>
 #include "chess.h"
 
-void test(void)
-{
-    Board bo;
-    Board *bi = &bo;
-    char jugada[5];
-    prepareBoard(bi);
-    //lloadPanel(bi, sPos);
-    loadPanel(bi, "e1/d1/a1h1/c1f1/b1g1/a2b2c2d2e2f2g2h2/|e8/d8/a8h8/c8f8/d3g8/a7b7c7d7e7f7g7h7/");
-    do {
-        printBoard(bi, 0);
-        printf("\n");
-        switch (isCheck(bi, 'n'))
-        {
-        case 0:
-            printf("No hay una puta mierda");
-            break;
-        case 1:
-            printf("Hay un puto jake");
-            break;
-        case 2:
-            printf("Hay un puto jakemate");
-            break;
-        default:
-            break;
-        }
-        printf("\n\nSeleccione una jugada: ");
-        scanf("%s", &jugada);
-
-        if (isMove(bi, jugada, 0) && isNailed(bi, jugada) == 0) 
-            movePiece(bi, jugada);
-        
-        checkCastle(bi);
-        isPromote(bi);
-        system("cls");
-    } while (jugada[0] != 'i');
-
-}
-
 // Metodos tablero
 void clearPanel(Board* bo) 
 {
@@ -209,6 +171,12 @@ int getRowId(int pos)
     }
 
     return cont;
+}
+
+void setPiece(Board* bo, char comand[5]) {
+    char pos[3] = { comand[2],comand[3],'\0' };
+    bo->panel[getPos(pos)][0] = comand[0];
+    bo->panel[getPos(pos)][1] = comand[1];
 }
 
 int isBlock(Board *bo, char start[3], char end[3]) {

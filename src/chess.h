@@ -24,6 +24,7 @@ char getColumnId(int pos);                  // Devuelve la Columna por id
 int getRowId(int pos);                      // Devuelve la Fila por id 
 char getPiece(Board *bo, char move[3]);     // Devuelve la pieza
 char getColor(Board *bo, char move[3]);     // Devuelve el color
+void setPiece(Board* bo, char comand[5]);   // Poene una pieza en una posicion
 
 // Movimento
 void movePiece(Board *bo, char move[5]);                    // Mueve una pieza de a -> b

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "chess.h"
 #include "puzzle.h"
-
+#include "gamemode.h"
 
 typedef enum { false, true } bool;
 
@@ -65,7 +65,7 @@ void selectOption(int option)
     {
     case 1:
         system("cls");
-        test();
+        offlineGamemode();
         break;
     case 2:
         printf("Opcion: %d\n", option);

@@ -2,6 +2,7 @@
 #include "chess.h"
 #include "puzzle.h"
 #include "gamemode.h"
+#include "puzzleCreator.h"
 
 typedef enum { false, true } bool;
 
@@ -80,8 +81,8 @@ void selectOption(int option)
         initPuzzles();
         break;
     case 5:
-        printf("Opcion: %d\n", option);
-        //Implementar
+        system("cls");
+        initPuzzleCreator();
         break;
     case 6:
         printf("Opcion: %d\n", option);

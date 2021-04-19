@@ -5,9 +5,6 @@
 #include "puzzle.h"
 #include "chess.h"
 
-
-#define TXT "..\\..\\..\\..\\data\\puzzles.txt"
-
 typedef enum { false, true } bool;
 
 

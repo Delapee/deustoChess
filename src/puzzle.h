@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#define TXT "..\\..\\..\\data\\puzzles.txt"
+
 typedef struct Puzzle
 {
 	int movements;
@@ -11,6 +13,7 @@ typedef struct Puzzle
 	char movementStates[16][4];
 	int mState;
 } Puzzle;
+
 
 void initPuzzles(void);
 void readPuzzle(FILE *f, Puzzle** puzzles);

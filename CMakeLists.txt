@@ -212,5 +212,4 @@ add_executable (deustoChessCCode ${SOURCE_FILES}
 				"src/main.c" 
 				"src/chess.c"         "src/chess.h" 
 				"src/puzzle.c"        "src/puzzle.h" 
-				"src/puzzleCreator.h" "src/puzzleCreator.c" 
-				"src/gamemode.h"      "src/gamemode.c")
+				"src/gamemode.c"      "src/gamemode.h")

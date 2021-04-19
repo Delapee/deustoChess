@@ -1,12 +1,30 @@
 #include <blah.h>
+#if WIN32
+#include <windows.h>
+#else
+#include <X11/Xlib.h>
+#endif
 using namespace Blah;
 
 Batch batch;
-//TextureRef tex;
+TextureRef tex;
+
+void getScreenResolution(int& width, int& height) {
+	#if WIN32
+		width = (int)GetSystemMetrics(SM_CXSCREEN);
+		height = (int)GetSystemMetrics(SM_CYSCREEN);
+	#else
+		Display* disp = XOpenDisplay(NULL);
+		Screen* scrn = DefaultScreenOfDisplay(disp);
+		width = scrn->width;
+		height = scrn->height;
+	#endif
+}
 
 void startup()
 {
-	//tex = Texture::create("player.png");
+	App::fullscreen(true);
+	tex = Texture::create("../../../data/img/1.png");
 }
 
 void render()
@@ -18,7 +36,7 @@ void render()
 
 	batch.push_matrix(transform);
 	batch.rect(Rect(-32, -32, 64, 64), Color::red);
-	//batch.tex(tex, Vec2(64, 0), Color::white);
+	batch.tex(tex, Vec2(0, 0), Color::white);
 	batch.pop_matrix();
 
 	batch.render();
@@ -30,22 +48,25 @@ void update()
 
 }
 
-void shutdown()
+void shutdownwindow()
 {
 
 }
 
 int main()
 {
+	int width, height;
+	getScreenResolution(width, height);
+
 	Config config;
 	config.name = "Deusto Chess";
-	config.width = 1280;
-	config.height = 720;
+	config.width = width;
+	config.height = height;
 	config.target_framerate = 60;
 	config.on_startup = startup;
 	config.on_render = render;
 	config.on_update = update;
-	config.on_shutdown = shutdown;
+	config.on_shutdown = shutdownwindow;
 
 	App::run(&config);
 	return 0;

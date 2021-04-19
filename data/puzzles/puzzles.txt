@@ -1,0 +1,10 @@
+3@N@h1/d6/a7///h2g2/|g8/b7////h7g7e6/@b7b1@d6d1@b1d1
+3@N@f1//f5//e5/h3g2f2/|g7//a3//e6/f7a6/@a3a1@f1e2@e6d4
+3@N@d2//a5//f5/h3g3f2/|f8//e6//e5/h5g7d4/@e5c4@d2d3@c4a5
+3@N@f1//d8/e1/h5g4f3c3/|g7//d1///h6f6f7d3b5/@d3d2@d8d2@d1d2
+5@N@g1/e6/e1b7///h2g2f3d4c3/|c8/c2/f8d7///h6c6a7/@c2f2@g1h1@f2f1@e1f1@f8f1
+3@B@e1/d2/a1h1/c1d3//a2b2e5f4g2h1/|g8/d4/a8f8/c8/d7b8/a7b7f7g7h7/@d3h7@g8h7@d2d4
+3@B@g2/g8////b3c4d5h7/|d8//e8/e5f5//b6c7d6/@g8g5@d8c8@g5f5
+3@B@g1/f4/d1///f2g2h2/|b7/b2/a8/d7//a7b6c6h6/@d1d7@b7a6@f4a4
+3@B@h2/b4///d7/d4g2h3/|g7/e4//e3//a7d5e6f7g6/@b4f8@g7h7@d7f6
+3@B@f2//c8//d7/e2g3h4/|h7//e6//b4/a6d3h6g7/@d7f8@h7g8@f8e6

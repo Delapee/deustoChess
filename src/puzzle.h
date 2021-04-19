@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#define TXT "..\\..\\..\\data\\puzzles.txt"
+#define TXT "../../../data/puzzles/puzzles.txt"
 
 typedef struct Puzzle
 {

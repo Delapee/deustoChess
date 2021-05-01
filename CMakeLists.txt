@@ -208,8 +208,16 @@ add_executable (deustoChess ${SOURCE_FILES}
 
 target_link_libraries(deustoChess PUBLIC ${LIBS})
 
-add_executable (deustoChessCCode ${SOURCE_FILES} 
-				"src/main.c" 
-				"src/chess.c"         "src/chess.h" 
-				"src/puzzle.c"        "src/puzzle.h" 
-				"src/gamemode.c"      "src/gamemode.h")
+add_executable (deustoChessCCode ${SOURCE_FILES}
+	src/main.c
+	src/chess.c
+	src/chess.h
+	src/puzzle.c
+	src/puzzle.h
+	src/gamemode.c
+	src/gamemode.h)
+
+add_executable (clock ${SOURCE_FILES}
+	src/clock/clock.cpp
+	src/clock/hilo.cpp
+	src/clock/clock.h)

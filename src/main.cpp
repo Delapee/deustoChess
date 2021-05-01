@@ -24,7 +24,7 @@ void getScreenResolution(int& width, int& height) {
 void startup()
 {
 	App::fullscreen(true);
-	tex = Texture::create("../../../data/img/1.png");
+	tex = Texture::create("../../../data/img/background/background.png");
 }
 
 void render()
@@ -35,7 +35,7 @@ void render()
 	batch.push_matrix(transform);
 
 	batch.push_matrix(transform);
-	batch.rect(Rect(-32, -32, 64, 64), Color::red);
+	//batch.rect(Rect(-32, -32, 64, 64), Color::red);
 	batch.tex(tex, Vec2(0, 0), Color::white);
 	batch.pop_matrix();
 
@@ -48,7 +48,7 @@ void update()
 
 }
 
-void shutdownwindow()
+void dispose()
 {
 
 }
@@ -66,7 +66,7 @@ int main()
 	config.on_startup = startup;
 	config.on_render = render;
 	config.on_update = update;
-	config.on_shutdown = shutdownwindow;
+	config.on_shutdown = dispose;
 
 	App::run(&config);
 	return 0;

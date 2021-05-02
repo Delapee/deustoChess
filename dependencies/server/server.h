@@ -20,8 +20,4 @@ void transferData();
 void setPriority(SOCKET hClientSocket, char szBuffer[]);
 
 
-
-
-
-
 #endif

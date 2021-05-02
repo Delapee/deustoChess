@@ -154,7 +154,7 @@ include_directories(${PROJECT_SOURCE_DIR}/dependencies/blah/include)
 add_executable (deustoChess ${SOURCE_FILES} 
 
 	src/main.cpp
-
+	
 	dependencies/blah/src/core/app.cpp
 	dependencies/blah/src/core/filesystem.cpp
 	dependencies/blah/src/core/common.cpp
@@ -204,20 +204,27 @@ add_executable (deustoChess ${SOURCE_FILES}
 	dependencies/blah/src/internal/graphics_backend_d3d11.cpp
 	dependencies/blah/src/internal/graphics_backend_dummy.cpp
 	dependencies/blah/src/internal/platform_backend_sdl2.cpp
-	dependencies/blah/src/internal/platform_backend_win32.cpp)
+	dependencies/blah/src/internal/platform_backend_win32.cpp )
 
 target_link_libraries(deustoChess PUBLIC ${LIBS})
 
-add_executable (deustoChessCCode ${SOURCE_FILES}
-	src/main.c
-	src/chess.c
-	src/chess.h
-	src/puzzle.c
-	src/puzzle.h
-	src/gamemode.c
-	src/gamemode.h)
+add_executable (clienteTest ${SOURCE_FILES}
+	src/testClient.cpp
+	src/utility/chess.cpp
+	src/utility/chess.h
+	src/utility/sconector.cpp
+	src/utility/sconector.h
+	src/game/gamemodes.cpp
+	src/game/gamemodes.h
+	)
 
 add_executable (clock ${SOURCE_FILES}
 	src/clock/clock.cpp
 	src/clock/hilo.cpp
-	src/clock/clock.h)
+	src/clock/clock.h
+	)
+
+add_executable (server ${SOURCE_FILES}
+	dependencies/server/server.cpp
+	dependencies/server/server.h
+	)

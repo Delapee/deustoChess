@@ -1,29 +1,28 @@
-Ôªø#include <stdlib.h>
+#include <stdlib.h>
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
 #include <iostream>
 #include <ws2tcpip.h>
-#include "conexionS.h"
+#include "server.h"
 
 using namespace std;
 
 
 CLIENT_INFO connectedUsers[2];              //maximo num de players.
-//77.225.46.133
 //192.168.0.13
-char szServerIPAddr[] = "192.168.0.13";     // Ip del server
-int nServerPort = 8001;                     // puerto del servidor que se utilizar√°
+char szServerIPAddr[] = "192.168.1.44";     // Ip del server
+int nServerPort = 8001;                     // puerto del servidor que se utilizar·
 
 int main()
 {
-    //--Comprobaci√≥n error incio lib--
+    //--ComprobaciÛn error incio lib--
     if (!InitWinSock2_0())
     {
         cout << "Unable to Initialize Windows Socket environment" << WSAGetLastError() << endl;
         return -1;
     }
 
-    //1¬∫
+    //1∫
     SOCKET hServerSocket;
 
     hServerSocket = socket(
@@ -39,7 +38,7 @@ int main()
     if (listen(hServerSocket, SOMAXCONN) == SOCKET_ERROR)
     {
         cout << "Unable to put server in listen state" << endl;
-        
+
         closesocket(hServerSocket);
         WSACleanup();
         return -1;
@@ -48,8 +47,8 @@ int main()
 
     // Start the infinite loop
     listenUsers(hServerSocket); //acepta y asigna un espacio y prioridad de juego.
-    cout << "User 1: " << inet_ntoa(connectedUsers[0].clientAddr.sin_addr)<< endl;
-    cout << "User 2: " << inet_ntoa(connectedUsers[1].clientAddr.sin_addr)<< endl;
+    cout << "User 1: " << inet_ntoa(connectedUsers[0].clientAddr.sin_addr) << endl;
+    cout << "User 2: " << inet_ntoa(connectedUsers[1].clientAddr.sin_addr) << endl;
     transferData(); //servidor recibe informacion del cliente.
 
     closesocket(hServerSocket);
@@ -92,19 +91,19 @@ void listenUsers(SOCKET hServerSocket)
 {
     int nUsers = 0;
 
-    while(nUsers < 2){
-         SOCKET hClientSocket;
-         struct sockaddr_in clientAddr;
-         int nSize = sizeof(clientAddr);
-       
-         hClientSocket = accept(hServerSocket, (struct sockaddr*)&clientAddr, &nSize);
+    while (nUsers < 2) {
+        SOCKET hClientSocket;
+        struct sockaddr_in clientAddr;
+        int nSize = sizeof(clientAddr);
+
+        hClientSocket = accept(hServerSocket, (struct sockaddr*)&clientAddr, &nSize);
         if (hClientSocket == INVALID_SOCKET)
         {
             cout << "accept( ) failed" << endl;
         }
         else
         {
-            
+
             (nUsers == 0) ? setPriority(hClientSocket, "Blanco") : setPriority(hClientSocket, "Negro");
             HANDLE hClientThread; //unsigned pointer/index to a int/ resource in kernel (LA OSTIA)
             struct CLIENT_INFO clientInfo;
@@ -122,9 +121,9 @@ void listenUsers(SOCKET hServerSocket)
 void transferData()
 {
     int player = 0;
-    
-    while(true)
-    {  
+
+    while (true)
+    {
         int nLength;
         char szBuffer[1024];
         nLength = recv(connectedUsers[player].hClientSocket, szBuffer, sizeof(szBuffer), 0);
@@ -132,10 +131,10 @@ void transferData()
         {
             szBuffer[nLength] = '\0';
             cout << "Received " << szBuffer << " from " << inet_ntoa(connectedUsers[player].clientAddr.sin_addr) << endl;
-            
+
             int nCntSend = 0;
             char* pBuffer = szBuffer;
-            
+
             if (player == 0) player = 1; else player = 0;
 
             while ((nCntSend = send(connectedUsers[player].hClientSocket, pBuffer, nLength, 0) != nLength))
@@ -151,19 +150,19 @@ void transferData()
                 pBuffer += nCntSend;
                 nLength -= nCntSend;
             }
-            
+
             if (strcmp(szBuffer, "QUIT") == 0)
             {
                 closesocket(connectedUsers[0].hClientSocket); closesocket(connectedUsers[1].hClientSocket);
                 return;
             }
-            
+
         }
     }
 }
 
 void setPriority(SOCKET hClientSocket, char szBuffer[]) {
-    
+
     cout << "Mensaje enviado: " << szBuffer << endl;
     int nLength = strlen(szBuffer);
     int nCntSend = 0;

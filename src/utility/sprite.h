@@ -4,39 +4,28 @@
 #include <iostream>
 #include <string>
 using namespace Blah;
-using namespace std;
 
 namespace chessSprite 
 {
     class Sprite {
         private:
-            enum State {
-                IDLE, CHOOSING
-            };
-
-            const string name;
-            const char color;
             int x, y;
-            const TextureRef texture;
-            State state;
-            bool touched;
-
+            
+        protected:
+            Sprite() = default;
+            
         public:
-            Sprite(string name, char color, int x, int y, const string& texturePath);
-            Sprite(const Sprite& copy);
+            TextureRef texture;
             ~Sprite();
-
-            const string getName();
-            const char getColor();
+            TextureRef getTexture();
             int getX();
             void setX(int x);
             int getY();
-            void setY(int y);
-            const TextureRef getTexture();
-            State getState();
-            void setState(State state);
-            bool getTouched();
-            void setTouched(bool touched);
+            void setY(int y); 
+            virtual void draw(Batch *batch);
+            
     };
+
+
 }
 

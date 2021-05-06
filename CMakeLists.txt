@@ -154,6 +154,16 @@ include_directories(${PROJECT_SOURCE_DIR}/dependencies/blah/include)
 add_executable (deustoChess ${SOURCE_FILES} 
 
 	src/main.cpp
+	src/utility/chess.cpp
+	src/utility/chess.h
+	src/utility/sconector.cpp
+	src/utility/sconector.h
+	src/game/gamemodes.cpp
+	src/game/gamemodes.h
+	src/utility/sprite.h
+	src/utility/sprite.cpp
+	src/utility/piece.h
+	src/utility/piece.cpp
 	
 	dependencies/blah/src/core/app.cpp
 	dependencies/blah/src/core/filesystem.cpp

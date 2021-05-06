@@ -2,81 +2,38 @@
 
 namespace chessSprite
 {
-    Sprite::Sprite(string name, char color, int x, int y, const string& texturePath)
-    {
-        this->name = name;
-        this->color = color;
-        this->x = x;
-        this->y = y;
-        this->texture = Texture::create(texturePath);
-        this->state = IDLE;
-        this->touched = false;
-    }
-
-    Sprite::Sprite(const Sprite& copy)
-    {
-        this->name = copy.name;
-        this->color = copy.color;
-        this->x = copy.x;
-        this->y = copy.y;
-        this->texture = copy.texture;
-        this->state = copy.state;
-        this->touched = copy.touched;
-    }
 
     Sprite::~Sprite()
     {
         
     }
 
-    const string Sprite::getName()
-    {
-        return this->name;
-    }
-
-    const char Sprite::getColor()
-    {
-        return this->color;
-    }
-
-    int Sprite::getX() {
-        return this->x;
-    }
-
-    void Sprite::setX(int x) {
-        this->x = x;
-    }
-
-    int Sprite::getY() {
-        return this->y;
-    }
-
-    void Sprite::setY(int y) {
-        this->y = y;
-    }
-
-    const TextureRef Sprite::getTexture()
+    TextureRef Sprite::getTexture()
     {
         return this->texture;
     }
 
-    State Sprite::getState()
+    int Sprite::getX() 
     {
-        return this->state;
+        return this->x;
     }
 
-    void Sprite::setState(State state)
+    void Sprite::setX(int x) 
     {
-        this->state = state;
+        this->x = x;
     }
 
-    bool Sprite::getTouched()
+    int Sprite::getY() 
     {
-        return this->touched;
+        return this->y;
     }
 
-    void Sprite::setTouched(bool touched)
+    void Sprite::setY(int y) 
     {
-        this->touched = touched;
+        this->y = y;
+    }
+    void Sprite::draw(Batch* batch)
+    {
+        batch->tex(this->texture, Vec2(this->x, this->y));
     }
 }

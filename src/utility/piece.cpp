@@ -1,19 +1,58 @@
 
 #include "piece.h"
 #include <blah.h>
-
+#include "chess.h"
 namespace chessSprite
 {
+   bool Piece::hover = false;
 
-    Piece::Piece(const String& texturePath, int x, int y)
+    Piece::Piece(const String& texturePath, std::string pos)
     {
         this->texture = Texture::create(texturePath);
-        this->x = x;
-        this->y = y;
+        this->grabbed = false;
+        this->pos = pos;
     }
 
     void Piece::draw(Batch *batch)
     {
-        batch->tex(this->texture, Vec2(this->x, this->y));
+        Vec2 pos;
+        pos.x = (this->pos.at(0) - 'a') * 115.5 + 465;
+        pos.y = ('8' - this->pos.at(1)) * 115 + 100;
+
+        batch->tex(this->texture, pos);
+    }
+
+    std::string Piece::getPos() {
+        return this->pos;
+    }
+
+    void Piece::setPos(std::string pos) {
+        this->pos = pos;
+    }
+
+    bool Piece::getHover()
+    {
+        return this->hover;
+    }
+
+    void Piece::setHover(bool bo) {
+        hover = bo;
+    }
+
+    bool Piece::isGrabbed() {
+        return this->grabbed;
+    }
+
+    void Piece::setGrabbed(bool grabbed) {
+        this->grabbed = grabbed;
+    }
+
+    void Piece::drawMouse(Batch* batch) {
+
+        int x = Input::mouse().x - 52.75;
+        int y = Input::mouse().y - 52.75;
+        Vec2 a = Vec2(x, y);
+
+        batch->tex(this->texture, a);
     }
 }

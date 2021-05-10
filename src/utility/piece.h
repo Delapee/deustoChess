@@ -13,16 +13,19 @@ namespace chessSprite
     class Piece:public Sprite {
     private:
         TextureRef texture;
-        int x, y;
         static bool hover;
         bool grabbed;
+        std::string pos;
 
     public:
-        Piece(const String& texturePath, int x, int y);
+        Piece(const String& texturePath, std::string pos);
         void draw(Batch *batch) override;
+        void drawMouse(Batch* batch);
+        std::string getPos();
+        void setPos(std::string pos);
         bool getHover();
-        void setHover();
+        void static setHover(bool bo);
         bool isGrabbed();
-        void setGrabbed(bool Grabbed);
+        void setGrabbed(bool grabbed);
     };
 }

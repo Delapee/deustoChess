@@ -3,6 +3,8 @@
 #include "utility/piece.h"
 #include "game/gamemodes.h"
 #include "utility/chess.h"
+#include <iostream>
+#include <string>
 #if WIN32
 #include <windows.h>
 #else
@@ -15,6 +17,7 @@ TextureRef background;
 play::Game a;
 std::unordered_map<std::string, String> pieces;
 std::vector<chessSprite::Piece*> board;
+chessSprite::Piece *selec;
 
 void getScreenResolution(int& width, int& height) {
 	#if WIN32
@@ -29,7 +32,7 @@ void getScreenResolution(int& width, int& height) {
 }
 
 void loadPieces() {
-	
+	selec = NULL;
 	// Piezas blancas
 	pieces.insert({"Pb", "../../../data/img/piece/Pb.png"});
 	pieces.insert({"Tb", "../../../data/img/piece/Tb.png"});
@@ -52,9 +55,12 @@ void loadPoisitions() {
 	for (size_t i = 0; i < 64; i++)
 	{
 		std::string aux = (a.getBo())->panel[i];
-		std::string aux2 = "" + getColumnId(i) + getRowId(i);
+		
 		if (aux.compare("  ") != 0) {
-			chessSprite::Piece* p = new chessSprite::Piece(pieces[aux], 900, 900);
+			char ab[3];
+			ab[0] = getColumnId(i); ab[1] = '0' + getRowId(i); ab[2] = '\0';
+			std::cout << ab << std::endl;
+			chessSprite::Piece* p = new chessSprite::Piece(pieces[aux], ab);
 			board.push_back(p);
 		}
 	}
@@ -69,6 +75,65 @@ void startup()
 	loadPoisitions();
 }
 
+std::string getMouseBox() {
+	Vec2 m = Input::mouse();
+	int x = m.x;
+	int y = m.y;
+	char a [3] = "no";
+
+
+	if ((x > 455 && x < 455 + 115.5 * 8) && (y > 90 && y < 90 + 115.5 * 8))
+	{
+		int count = -1;
+		for (size_t i = 0; i < 8; i++)
+		{
+			if (455 + 115.5 *i < x)
+			{
+				count++;
+			}
+		}
+		a[0] = 'a' + count;
+	
+		count = 0;
+		for (size_t i = 0; i < 8; i++)
+		{
+			if (90 + 115 * i < y)
+			{
+				count++;
+			}
+		}
+		a[1] = '9' - count;
+	}
+
+	return a;
+}
+
+void update()
+{	
+	if (Input::down(MouseButton::Left) && (!board[0]->getHover())) {
+
+		for (size_t i = 0; i < board.size(); i++)
+		{
+			if (board[i]->getPos().compare(getMouseBox()) == 0)
+			{
+				board[i]->setGrabbed(true);
+				board[i]->setHover(true);
+				selec = board[i];
+				break;
+			}
+		}
+	}
+	else if (!Input::down(MouseButton::Left) && board[0]->getHover()) {
+		std::cout << "Soltado" << std::endl;
+		selec->setPos(getMouseBox());
+		selec->setGrabbed(false);
+		selec->setHover(false);
+		selec = NULL;
+	}
+
+	
+}
+
 void render()
 {
 	App::backbuffer->clear(Color::black);
@@ -79,9 +144,14 @@ void render()
 
 	for (int i = 0; i < board.size(); i++)
 	{
-		board[i]->draw(&batch);
+		if (!board[i]->isGrabbed()) {
+			board[i]->draw(&batch);
+		}
 	}
 
+	if (selec != NULL) {
+		selec->drawMouse(&batch);
+	}
 
 	//////////////////////////////////////////
 	batch.pop_matrix();
@@ -89,10 +159,7 @@ void render()
 	batch.clear();
 }
 
-void update()
-{
 
-}
 
 void dispose()
 {
@@ -108,7 +175,7 @@ int main()
 	config.name = "Deusto Chess";
 	config.width = width;
 	config.height = height;
-	config.target_framerate = 60;
+	config.target_framerate = 120;
 	config.on_startup = startup;
 	config.on_render = render;
 	config.on_update = update;

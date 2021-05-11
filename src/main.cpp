@@ -51,7 +51,8 @@ void loadPieces() {
 }
 
 void loadPoisitions() {
-
+	for (auto& piece : board) delete piece;
+	board.clear();
 	for (size_t i = 0; i < 64; i++)
 	{
 		std::string aux = (a.getBo())->panel[i];
@@ -59,7 +60,6 @@ void loadPoisitions() {
 		if (aux.compare("  ") != 0) {
 			char ab[3];
 			ab[0] = getColumnId(i); ab[1] = '0' + getRowId(i); ab[2] = '\0';
-			std::cout << ab << std::endl;
 			chessSprite::Piece* p = new chessSprite::Piece(pieces[aux], ab);
 			board.push_back(p);
 		}
@@ -80,7 +80,6 @@ std::string getMouseBox() {
 	int x = m.x;
 	int y = m.y;
 	char a [3] = "no";
-
 
 	if ((x > 455 && x < 455 + 115.5 * 8) && (y > 90 && y < 90 + 115.5 * 8))
 	{
@@ -124,8 +123,19 @@ void update()
 		}
 	}
 	else if (!Input::down(MouseButton::Left) && board[0]->getHover()) {
-		std::cout << "Soltado" << std::endl;
-		selec->setPos(getMouseBox());
+
+		std::string move = selec->getPos() + "" + getMouseBox();
+		char mo[5]; strcpy(mo, move.c_str());
+		char piece[2] = { mo[0] , mo[1] };
+
+		if (getColor(a.getBo(), piece) == a.getPlayer() && isMove(a.getBo(), mo, 0) && isNailed(a.getBo(), mo) == 0) {
+			movePiece(a.getBo(), mo);
+			checkCastle(a.getBo());
+			isPromote(a.getBo());
+			loadPoisitions();
+			a.setPlayer((a.getPlayer() == 'b') ? 'n' : 'b');			
+		}
+
 		selec->setGrabbed(false);
 		selec->setHover(false);
 		selec = NULL;
@@ -139,6 +149,7 @@ void render()
 	App::backbuffer->clear(Color::black);
 	auto transform = Mat3x2::create_transform(Vec2::zero, Vec2::zero, Vec2::one, 0);
 	batch.push_matrix(transform);
+	
 	// AQUI DIBUJO TODO
 	batch.tex(background, Vec2(0, 0), Color::white);
 
@@ -163,7 +174,7 @@ void render()
 
 void dispose()
 {
-	for (auto& piece : pieces) delete piece.second;
+	for (auto& piece : board) delete piece;
 }
 
 int main()

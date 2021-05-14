@@ -13,11 +13,18 @@ namespace chessSprite
         this->pos = pos;
     }
 
-    void Piece::draw(Batch *batch)
+    void Piece::draw(Batch* batch, char c)
     {
         Vec2 pos;
-        pos.x = (this->pos.at(0) - 'a') * 115.5 + 465;
-        pos.y = ('8' - this->pos.at(1)) * 115 + 100;
+
+        if (true) {
+            pos.x = (this->pos.at(0) - 'a') * 115.5 + 465;
+            pos.y = ('8' - this->pos.at(1)) * 115 + 100;
+        }
+        else{
+            pos.x = ('h' - this->pos.at(0)) * 115.5 + 465;
+            pos.y = (this->pos.at(1) - '1') * 115 + 100;
+        }
 
         batch->tex(this->texture, pos);
     }

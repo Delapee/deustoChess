@@ -71,6 +71,7 @@ void startup()
 	App::fullscreen(true);
 	background = Texture::create("../../../data/img/background/background.png");
 	a = play::Game('b');
+	//loadPanel(a.getBo(), "e2//////|e7//h7g7////");
 	loadPieces();
 	loadPoisitions();
 }
@@ -79,7 +80,7 @@ std::string getMouseBox() {
 	Vec2 m = Input::mouse();
 	int x = m.x;
 	int y = m.y;
-	char a [3] = "no";
+	char box [3] = "no";
 
 	if ((x > 455 && x < 455 + 115.5 * 8) && (y > 90 && y < 90 + 115.5 * 8))
 	{
@@ -91,8 +92,9 @@ std::string getMouseBox() {
 				count++;
 			}
 		}
-		a[0] = 'a' + count;
-	
+		//(a.getPlayer() == 'b') ? box[0] = 'a' + count : box[0] = 'h' - count;
+		box[0] = 'a' + count;
+
 		count = 0;
 		for (size_t i = 0; i < 8; i++)
 		{
@@ -101,11 +103,11 @@ std::string getMouseBox() {
 				count++;
 			}
 		}
-		a[1] = '9' - count;
-		a[1] = '0' + count;
+		//(a.getPlayer() == 'b') ? box[1] = '9' - count : box[1] = '0' + count;
+		box[1] = '9' - count;
 	}
 
-	return a;
+	return box;
 }
 
 void update()
@@ -123,18 +125,21 @@ void update()
 			}
 		}
 	}
+
 	else if (!Input::down(MouseButton::Left) && board[0]->getHover()) {
 
 		std::string move = selec->getPos() + "" + getMouseBox();
 		char mo[5]; strcpy(mo, move.c_str());
 		char piece[2] = { mo[0] , mo[1] };
 
-		if (getColor(a.getBo(), piece) == a.getPlayer() && isMove(a.getBo(), mo, 0) && isNailed(a.getBo(), mo) == 0) {
+		if (getColor(a.getBo(), piece) == a.getPlayer() && isMove(a.getBo(), mo, 0) == 1 && isNailed(a.getBo(), mo) == 0) {
 			movePiece(a.getBo(), mo);
 			checkCastle(a.getBo());
 			isPromote(a.getBo());
 			loadPoisitions();
-			a.setPlayer((a.getPlayer() == 'b') ? 'n' : 'b');			
+			std::cout << isCheck(a.getBo(), a.getPlayer()) << std::endl;
+			a.setPlayer((a.getPlayer() == 'b') ? 'n' : 'b');
+			
 		}
 
 		selec->setGrabbed(false);
@@ -157,7 +162,7 @@ void render()
 	for (int i = 0; i < board.size(); i++)
 	{
 		if (!board[i]->isGrabbed()) {
-			board[i]->draw(&batch);
+			board[i]->draw(&batch, a.getPlayer());
 		}
 	}
 
@@ -180,7 +185,7 @@ void dispose()
 
 int main()
 {
-	//play::playOffline();
+
 
 	int width, height;
 	getScreenResolution(width, height);

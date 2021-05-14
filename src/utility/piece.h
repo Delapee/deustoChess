@@ -19,7 +19,7 @@ namespace chessSprite
 
     public:
         Piece(const String& texturePath, std::string pos);
-        void draw(Batch *batch) override;
+        void draw(Batch *batch, char c);
         void drawMouse(Batch* batch);
         std::string getPos();
         void setPos(std::string pos);

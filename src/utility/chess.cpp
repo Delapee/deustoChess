@@ -193,7 +193,7 @@ int isBlock(Board* bo, char start[3], char end[3]) {
         }
         else
         {
-            s = getRow(end) + 1;
+            s = getRow(end);
             e = getRow(start);
             t1 = -1;
         }
@@ -300,7 +300,7 @@ int isMove(Board* bo, char move[5], int protec)
     char pieceE[3] = { getPiece(bo, end), getColor(bo, end) , '\0' };
     int t = (pieceS[1] == 'b') ? 1 : -1;
 
-    if ((pieceS[1] != pieceE[1] && end[1] - '0' < 9 && end[1] - '0' > 0) || protec == 1)     // La pieza es de distinto color
+    if ((pieceS[1] != pieceE[1] && end[1] - '0' < 9 && end[1] - '0' > 0) || protec == 1 )     // La pieza es de distinto color
     {
         switch (pieceS[0])
         {
@@ -421,7 +421,7 @@ int isMove(Board* bo, char move[5], int protec)
             break;
 
         case 'R':
-            if (isSpot(bo, end, (pieceS[1] == 'b') ? 'n' : 'b') == 0)
+            if (protec == 1 || isSpot(bo, end, (pieceS[1] == 'b') ? 'n' : 'b') == 0)
             {
                 if ((getPos(start) - 1 == getPos(end) || getPos(start) + 7 == getPos(end)       // Movimiento lateral izquierdo
                     || getPos(start) - 9 == getPos(end)) && (getColumn(start) != 'a'))
@@ -437,36 +437,39 @@ int isMove(Board* bo, char move[5], int protec)
                 {
                     return 1;
                 }
-                else if (getColor(bo, start) == 'b')
+                else                                                                             // Enroque Blanco
                 {
-                    if (getPos(start) + 2 == getPos(end) && bo->castl[1] == 1 && isBlock(bo, "e1", "h1") == 0
-                        && isSpot(bo, "f1\0", 'n') == 0 && isSpot(bo, "g1\0", 'n') == 0)
-                    {
-                        movePiece(bo, "h1f1\0");
-                        return 1;
+                    if (getColor(bo, start) == 'b' && isSpot(bo, "e1\0", 'n') == 0){
+                        if (getPos(start) + 2 == getPos(end) && bo->castl[1] == 1 && isBlock(bo, "e1", "h1") == 0
+                            && isSpot(bo, "f1\0", 'n') == 0 && isSpot(bo, "g1\0", 'n') == 0)
+                        {
+                            movePiece(bo, "h1f1\0");
+                            return 1;
+                        }
+                        else if (getPos(start) - 2 == getPos(end) && bo->castl[0] == 1 && isBlock(bo, "e1", "a1") == 0
+                            && isSpot(bo, "c1\0", 'n') == 0 && isSpot(bo, "d1\0", 'n') == 0)
+                        {
+                            movePiece(bo, "a1d1\0");
+                            return 1;
+                        }
                     }
-                    else if (getPos(start) - 2 == getPos(end) && bo->castl[0] == 1 && isBlock(bo, "e1", "a1") == 0
-                        && isSpot(bo, "c1\0", 'n') == 0 && isSpot(bo, "d1\0", 'n') == 0)
+                    else if (getColor(bo, start) == 'n')                                        // Enroque Negro
                     {
-                        movePiece(bo, "a1d1\0");
-                        return 1;
+                        if (getPos(start) + 2 == getPos(end) && bo->castl[3] == 1 && isBlock(bo, "e8", "h8") == 0
+                            && isSpot(bo, "f8\0", 'b') == 0 && isSpot(bo, "g8\0", 'b') == 0 && isSpot(bo, "e8\0", 'b') == 0)
+                        {
+                            movePiece(bo, "h8f8\0");
+                            return 1;
+                        }
+                        else if (getPos(start) - 2 == getPos(end) && bo->castl[2] == 1 && isBlock(bo, "e8", "a8") == 0
+                            && isSpot(bo, "c8\0", 'b') == 0 && isSpot(bo, "d8\0", 'b') == 0 && isSpot(bo, "e8\0", 'b') == 0)
+                        {
+                            movePiece(bo, "a8d8\0");
+                            return 1;
+                        }
                     }
                 }
-                else
-                {
-                    if (getPos(start) + 2 == getPos(end) && bo->castl[3] == 1 && isBlock(bo, "e8", "h8") == 0
-                            && isSpot(bo, "f8\0", 'b') == 0 && isSpot(bo, "g8\0", 'b') == 0)
-                    {
-                        movePiece(bo, "h8f8\0");
-                        return 1;
-                    }
-                    else if (getPos(start) - 2 == getPos(end) && bo->castl[2] == 1 && isBlock(bo, "e8", "a8") == 0
-                        && isSpot(bo, "c8\0", 'b') == 0 && isSpot(bo, "d8\0", 'b') == 0)
-                    {
-                        movePiece(bo, "a8d8\0");
-                        return 1;
-                    }
-                }
+                
             }
             break;
 
@@ -529,7 +532,7 @@ int isSpot(Board* bo, char pos[3], char color)
         if (bo->panel[i][1] == color)
         {
             char move[5] = { getColumnId(i), getRowId(i) + '0', getColumn(pos), getRow(pos) + '0','\0' };
-            if (bo->panel[i][0] != 'R' && isMove(bo, move, 1)) return 1;
+            if (!(move[0] == move[2] && move[1] == move[3]) && isMove(bo, move, 1) == 1) return 1;
         }
     }
 
@@ -568,7 +571,6 @@ int isNailed(Board* bo, char move[5]) {
     char a[2] = { move[0],move[1] };
     char* token = strtok(nStatus, "|");
 
-
     movePiece(&aux, move);
     if (getColor(bo, a) == 'n') token = strtok(NULL, "|");
     if (move[0] == token[0] && move[1] == token[1])
@@ -598,19 +600,33 @@ int isCheck(Board* bo, char player) {
 
     if (isSpot(bo, kingPos, player)) {
 
+        for (size_t i = 0; i < 5; i++)
+        {
+            int t = 3;
+            while (token[t] != '/')
+            {
+                for (size_t j = 0; j < 64; j++)
+                {
+                    char move[5] = { token[t], token[t + 1], getColumnId(j), getRowId(j) + '0', '\0' };
+                    if (isMove(bo, move, 0) == 1 && isNailed(bo, move) == 0) return 1;
+                }
+                t += 2;
+            }
+            t++;
+        }
+
         for (size_t i = 0; i < 3; i++)
         {
             for (size_t j = 0; j < 3; j++)
             {
-                char move[4] = { kingPos[0], kingPos[1], kingAux[0], kingAux[1] };
-                if (isMove(bo, move, 0)) {
-                    return 1;
-                }
+                char move[5] = { kingPos[0], kingPos[1], kingAux[0], kingAux[1], '\0' };
+                if ( isMove(bo, move, 0) && isNailed(bo, move) == 0) return 1;
                 kingAux[0] = kingAux[0] + 1;
             }
             kingAux[1] = kingAux[1] + 1;
             kingAux[0] = kingPos[0] - 1;
         }
+
         return 2;
     }
     else return 0;

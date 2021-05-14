@@ -58,7 +58,8 @@ void loadPiece(Board* bo, char status[40], char player)
     }
 }
 
-void savePanel(Board* bo, char status[80]) {
+void savePanel(Board* bo, char status[80]) 
+{
 
     char piece[6] = { 'R','D','T','A','C','P' };
     char wResult[80] = "";
@@ -258,8 +259,8 @@ int isBlock(Board* bo, char start[3], char end[3]) {
         {
             s = getColumn(end);
             e = getColumn(start);
-            t1 = -1;
-            t2 = 1;
+            t1 = 1;
+            t2 = -1;
         }
 
 
@@ -309,15 +310,21 @@ int isMove(Board* bo, char move[5], int protec)
             {
                 return 1;
             }
-            else if (((getPos(start) + 7 * t == getPos(end) || getPos(start) + 9 * t == getPos(end)) && pieceE[0] != ' ')
-                || protec && ((getPos(start) + 7 * t == getPos(end) || getPos(start) + 9 * t == getPos(end)) && pieceE[0] == ' '))  //Comer
+            else if (((getPos(start) + 7 * t == getPos(end) || getPos(start) + 9 * t == getPos(end)) && pieceE[1] != ' ')
+                || protec && ((getPos(start) + 7 * t == getPos(end) || getPos(start) + 9 * t == getPos(end)) && pieceE[1] == ' '))  //Comer
             {
+                if (pieceE[0] == ' ') {
+                    bo->panel[getPos(end) - 8 * t][0] = ' ';
+                    bo->panel[getPos(end) - 8 * t][1] = ' ';
+                }
                 return 1;
             }
             else if ((getPos(start) + 16 * t == getPos(end) && bo->panel[getPos(start) + 8 * t][0] == ' ' && getPiece(bo, end) == ' ') && protec != 1)  // Avanzar 2 casillas 
             {
                 if ((t == 1 && getRow(start) == 2) || (t == -1 && getRow(start) == 7))
                 {
+                    bo->panel[getPos(end) - 8 * t][0] = 'W';
+                    (t == 1) ? bo->panel[getPos(end) - 8 * t][1] = 'b': bo->panel[getPos(end) - 8 * t][1] = 'n';
                     return 1;
                 }
             }
@@ -448,7 +455,7 @@ int isMove(Board* bo, char move[5], int protec)
                 else
                 {
                     if (getPos(start) + 2 == getPos(end) && bo->castl[3] == 1 && isBlock(bo, "e8", "h8") == 0
-                        && isSpot(bo, "f8\0", 'n') == 0 && isSpot(bo, "g8\0", 'n') == 0)
+                            && isSpot(bo, "f8\0", 'b') == 0 && isSpot(bo, "g8\0", 'b') == 0)
                     {
                         movePiece(bo, "h8f8\0");
                         return 1;
@@ -533,8 +540,22 @@ void isPromote(Board* bo)
 {
     for (size_t i = 0; i < 8; i++)
     {
+        // Peon filas 1 y 8
         if (bo->panel[i][0] == 'P' && bo->panel[i][1] == 'n') bo->panel[i][0] = 'D';
         if (bo->panel[63 - i][0] == 'P' && bo->panel[63 - i][1] == 'b') bo->panel[63 - i][0] = 'D';
+
+        // Peon al paso
+
+        if (bo->panel[i + 16][0] == 'W') bo->panel[i + 16][0] = ' ';
+        else if (bo->panel[i + 16][0] == ' ' && bo->panel[i + 16][1] == 'b') {
+            bo->panel[i + 16][1] = ' ';
+        }
+
+        if (bo->panel[47 - i][0] == 'W') bo->panel[47 - i][0] = ' ';
+        else if (bo->panel[47 - i][0] == ' ' && bo->panel[47 - i][1] == 'n') {
+            bo->panel[47 - i][1] = ' ';
+        }
+
     }
 
 }

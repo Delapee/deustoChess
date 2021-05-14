@@ -57,7 +57,7 @@ void loadPoisitions() {
 	{
 		std::string aux = (a.getBo())->panel[i];
 		
-		if (aux.compare("  ") != 0) {
+		if (aux.compare("  ") != 0 && aux.compare(" b") && aux.compare(" n")) {
 			char ab[3];
 			ab[0] = getColumnId(i); ab[1] = '0' + getRowId(i); ab[2] = '\0';
 			chessSprite::Piece* p = new chessSprite::Piece(pieces[aux], ab);
@@ -102,6 +102,7 @@ std::string getMouseBox() {
 			}
 		}
 		a[1] = '9' - count;
+		a[1] = '0' + count;
 	}
 
 	return a;
@@ -179,6 +180,8 @@ void dispose()
 
 int main()
 {
+	//play::playOffline();
+
 	int width, height;
 	getScreenResolution(width, height);
 

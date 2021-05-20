@@ -17,7 +17,7 @@ namespace chessSprite
     {
         Vec2 pos;
 
-        if (true) {
+        if (c == 'b') {
             pos.x = (this->pos.at(0) - 'a') * 115.5 + 465;
             pos.y = ('8' - this->pos.at(1)) * 115 + 100;
         }

@@ -3,8 +3,10 @@
 #include "utility/piece.h"
 #include "game/gamemodes.h"
 #include "utility/chess.h"
+#include "utility/sconector.h"
 #include <iostream>
 #include <string>
+#include <thread> 
 #if WIN32
 #include <windows.h>
 #else
@@ -18,6 +20,9 @@ play::Game a;
 std::unordered_map<std::string, String> pieces;
 std::vector<chessSprite::Piece*> board;
 chessSprite::Piece *selec;
+Sconector *sc;
+bool listening , needUpdate;
+std::thread t1;
 
 void getScreenResolution(int& width, int& height) {
 	#if WIN32
@@ -33,21 +38,22 @@ void getScreenResolution(int& width, int& height) {
 
 void loadPieces() {
 	selec = NULL;
+
 	// Piezas blancas
-	pieces.insert({"Pb", "../../../data/img/piece/Pb.png"});
-	pieces.insert({"Tb", "../../../data/img/piece/Tb.png"});
-	pieces.insert({"Cb", "../../../data/img/piece/Cb.png"});
-	pieces.insert({"Ab", "../../../data/img/piece/Ab.png"});
-	pieces.insert({"Db", "../../../data/img/piece/Db.png"});
-	pieces.insert({"Rb", "../../../data/img/piece/Rb.png"});
+	pieces.insert({ "Pb", "piezas/Pb.png" });
+	pieces.insert({ "Tb", "piezas/Tb.png" });
+	pieces.insert({ "Cb", "piezas/Cb.png" });
+	pieces.insert({ "Ab", "piezas/Ab.png" });
+	pieces.insert({ "Db", "piezas/Db.png" });
+	pieces.insert({ "Rb", "piezas/Rb.png" });
 
 	// Piezas negras
-	pieces.insert({"Pn", "../../../data/img/piece/Pn.png"});
-	pieces.insert({"Tn", "../../../data/img/piece/Tn.png"});
-	pieces.insert({"Cn", "../../../data/img/piece/Cn.png"});
-	pieces.insert({"An", "../../../data/img/piece/An.png"});
-	pieces.insert({"Dn", "../../../data/img/piece/Dn.png"});
-	pieces.insert({"Rn", "../../../data/img/piece/Rn.png"});
+	pieces.insert({ "Pn", "piezas/Pn.png" });
+	pieces.insert({ "Tn", "piezas/Tn.png" });
+	pieces.insert({ "Cn", "piezas/Cn.png" });
+	pieces.insert({ "An", "piezas/An.png" });
+	pieces.insert({ "Dn", "piezas/Dn.png" });
+	pieces.insert({ "Rn", "piezas/Rn.png" });
 }
 
 void loadPoisitions() {
@@ -66,12 +72,39 @@ void loadPoisitions() {
 	}
 }
 
+void reciveMove() {
+	sc->listendata();
+	char move[5]; strcpy(move, sc->getData().c_str());
+	if (isMove(a.getBo(), move, 0) == 1) movePiece(a.getBo(), move);
+	sc->validPriority();
+	checkCastle(a.getBo());
+	isPromote(a.getBo());
+	needUpdate = true;
+}
+
+
 void startup()
 {
-	App::fullscreen(true);
-	background = Texture::create("../../../data/img/background/background.png");
-	a = play::Game('b');
-	//loadPanel(a.getBo(), "e2//////|e7//h7g7////");
+	App::fullscreen(false);
+ 	background = Texture::create("background.png");
+	needUpdate = false;
+	if (sc->connectServer() == true) {
+		sc->listendata();
+		if (sc->getData() == "Blanco") {
+			a = play::Game('b');
+			listening = true;
+			sc->validPriority();
+		}
+		else {
+			listening = false;
+			a = play::Game('n');
+		}
+	}
+	else
+	{
+		App::exit();
+	}
+
 	loadPieces();
 	loadPoisitions();
 }
@@ -92,8 +125,8 @@ std::string getMouseBox() {
 				count++;
 			}
 		}
-		//(a.getPlayer() == 'b') ? box[0] = 'a' + count : box[0] = 'h' - count;
-		box[0] = 'a' + count;
+		(a.getPlayer() == 'b') ? box[0] = 'a' + count : box[0] = 'h' - count;
+		//box[0] = 'a' + count;
 
 		count = 0;
 		for (size_t i = 0; i < 8; i++)
@@ -103,8 +136,8 @@ std::string getMouseBox() {
 				count++;
 			}
 		}
-		//(a.getPlayer() == 'b') ? box[1] = '9' - count : box[1] = '0' + count;
-		box[1] = '9' - count;
+		(a.getPlayer() == 'b') ? box[1] = '9' - count : box[1] = '0' + count;
+		//box[1] = '9' - count;
 	}
 
 	return box;
@@ -125,21 +158,21 @@ void update()
 			}
 		}
 	}
-
 	else if (!Input::down(MouseButton::Left) && board[0]->getHover()) {
 
 		std::string move = selec->getPos() + "" + getMouseBox();
 		char mo[5]; strcpy(mo, move.c_str());
 		char piece[2] = { mo[0] , mo[1] };
 
-		if (getColor(a.getBo(), piece) == a.getPlayer() && isMove(a.getBo(), mo, 0) == 1 && isNailed(a.getBo(), mo) == 0) {
+		if (sc->getPriority() && getColor(a.getBo(), piece) == a.getPlayer()
+			&& isMove(a.getBo(), mo, 0) == 1 && isNailed(a.getBo(), mo) == 0) 
+		{
 			movePiece(a.getBo(), mo);
+			sc->setData(mo); sc->sendData();
 			checkCastle(a.getBo());
 			isPromote(a.getBo());
 			loadPoisitions();
-			std::cout << isCheck(a.getBo(), a.getPlayer()) << std::endl;
-			a.setPlayer((a.getPlayer() == 'b') ? 'n' : 'b');
-			
+			listening = false;
 		}
 
 		selec->setGrabbed(false);
@@ -148,6 +181,17 @@ void update()
 	}
 
 	
+	if (!sc->getPriority() && !listening) {
+		listening = true;
+		std::thread t(reciveMove);
+		t.detach();
+	}
+
+	if (needUpdate) {
+		loadPoisitions();
+		needUpdate = false;
+	}
+
 }
 
 void render()
@@ -181,12 +225,11 @@ void render()
 void dispose()
 {
 	for (auto& piece : board) delete piece;
+	delete sc;
 }
 
 int main()
 {
-
-
 	int width, height;
 	getScreenResolution(width, height);
 
@@ -199,6 +242,11 @@ int main()
 	config.on_render = render;
 	config.on_update = update;
 	config.on_shutdown = dispose;
+
+	char ip[20];
+	std::cout << "Marca la ip del servidor: ";
+	std::cin >> ip;
+	sc = new Sconector(ip, 8001);
 
 	App::run(&config);
 	return 0;

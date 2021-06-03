@@ -10,6 +10,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Add source to this project's executable.
+add_library(sqlite
+
+	dependencies/sqlite/sqlite3.c
+	dependencies/sqlite/sqlite3.h
+	dependencies/sqlite/sqlite3ext.h
+)
+
 add_library(blah
 
 	dependencies/blah/src/core/app.cpp
@@ -214,7 +221,12 @@ add_executable (deustoChess ${SOURCE_FILES}
 	dependencies/blah/src/internal/graphics_backend_d3d11.cpp
 	dependencies/blah/src/internal/graphics_backend_dummy.cpp
 	dependencies/blah/src/internal/platform_backend_sdl2.cpp
-	dependencies/blah/src/internal/platform_backend_win32.cpp )
+	dependencies/blah/src/internal/platform_backend_win32.cpp
+	
+	dependencies/sqlite/sqlite3.c
+	dependencies/sqlite/sqlite3.h
+	dependencies/sqlite/sqlite3ext.h
+	)
 
 target_link_libraries(deustoChess PUBLIC ${LIBS})
 

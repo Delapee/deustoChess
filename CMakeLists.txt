@@ -231,6 +231,8 @@ add_executable (deustoChess ${SOURCE_FILES}
 	src/utility/piece.cpp
 	src/utility/modulo.h
 	src/utility/modulo.cpp
+	src/game/menu.cpp
+	src/game/menu.h
 	
 	dependencies/blah/src/core/app.cpp
 	dependencies/blah/src/core/filesystem.cpp
@@ -364,4 +366,9 @@ add_executable (clock ${SOURCE_FILES}
 add_executable (server ${SOURCE_FILES}
 	dependencies/server/server.cpp
 	dependencies/server/server.h
+)
+
+add_executable (menu ${SOURCE_FILES}
+	src/game/menu.cpp
+	src/game/menu.h
 )

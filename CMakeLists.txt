@@ -17,6 +17,64 @@ add_library(sqlite
 	dependencies/sqlite/sqlite3ext.h
 )
 
+add_library(stockfish
+
+	dependencies/stockfish/src/benchmark.cpp 
+	dependencies/stockfish/src/bitbase.cpp
+	dependencies/stockfish/src/bitboard.cpp
+	dependencies/stockfish/src/bitboard.h
+	dependencies/stockfish/src/endgame.cpp
+	dependencies/stockfish/src/endgame.h
+	dependencies/stockfish/src/evaluate.cpp 
+	dependencies/stockfish/src/evaluate.h
+	dependencies/stockfish/src/material.cpp
+	dependencies/stockfish/src/material.h
+	dependencies/stockfish/src/misc.cpp
+	dependencies/stockfish/src/misc.h
+	dependencies/stockfish/src/movegen.cpp
+	dependencies/stockfish/src/movegen.h
+	dependencies/stockfish/src/movepick.cpp
+	dependencies/stockfish/src/movepick.h
+	dependencies/stockfish/src/pawns.cpp
+	dependencies/stockfish/src/pawns.h
+	dependencies/stockfish/src/position.cpp
+	dependencies/stockfish/src/position.h
+	dependencies/stockfish/src/psqt.cpp
+	dependencies/stockfish/src/psqt.h
+	dependencies/stockfish/src/search.cpp
+	dependencies/stockfish/src/search.h
+	dependencies/stockfish/src/thread.cpp
+	dependencies/stockfish/src/thread.h
+	dependencies/stockfish/src/thread_win32_osx.h
+	dependencies/stockfish/src/timeman.cpp
+	dependencies/stockfish/src/timeman.h
+	dependencies/stockfish/src/tt.cpp
+	dependencies/stockfish/src/tt.h
+	dependencies/stockfish/src/tune.cpp
+	dependencies/stockfish/src/tune.h
+	dependencies/stockfish/src/types.h
+	dependencies/stockfish/src/uci.cpp
+	dependencies/stockfish/src/uci.h
+	dependencies/stockfish/src/ucioption.cpp
+
+	dependencies/stockfish/src/incbin/incbin.h
+
+	dependencies/stockfish/src/nnue/evaluate_nnue.cpp
+	dependencies/stockfish/src/nnue/evaluate_nnue.h
+	dependencies/stockfish/src/nnue/nnue_accumulator.h
+	dependencies/stockfish/src/nnue/nnue_architecture.h
+	dependencies/stockfish/src/nnue/nnue_common.h
+	dependencies/stockfish/src/nnue/nnue_feature_transformer.h
+	dependencies/stockfish/src/nnue/features/half_kp.cpp
+	dependencies/stockfish/src/nnue/features/half_kp.h
+	dependencies/stockfish/src/nnue/layers/affine_transform.h
+	dependencies/stockfish/src/nnue/layers/clipped_relu.h
+	dependencies/stockfish/src/nnue/layers/input_slice.h
+
+	dependencies/stockfish/src/syzygy/tbprobe.cpp
+	dependencies/stockfish/src/syzygy/tbprobe.h
+)
+
 add_library(blah
 
 	dependencies/blah/src/core/app.cpp
@@ -171,6 +229,8 @@ add_executable (deustoChess ${SOURCE_FILES}
 	src/utility/sprite.cpp
 	src/utility/piece.h
 	src/utility/piece.cpp
+	src/utility/modulo.h
+	src/utility/modulo.cpp
 	
 	dependencies/blah/src/core/app.cpp
 	dependencies/blah/src/core/filesystem.cpp
@@ -226,7 +286,62 @@ add_executable (deustoChess ${SOURCE_FILES}
 	dependencies/sqlite/sqlite3.c
 	dependencies/sqlite/sqlite3.h
 	dependencies/sqlite/sqlite3ext.h
-	)
+
+	dependencies/stockfish/src/benchmark.cpp 
+	dependencies/stockfish/src/bitbase.cpp
+	dependencies/stockfish/src/bitboard.cpp
+	dependencies/stockfish/src/bitboard.h
+	dependencies/stockfish/src/endgame.cpp
+	dependencies/stockfish/src/endgame.h
+	dependencies/stockfish/src/evaluate.cpp 
+	dependencies/stockfish/src/evaluate.h
+	dependencies/stockfish/src/material.cpp
+	dependencies/stockfish/src/material.h
+	dependencies/stockfish/src/misc.cpp
+	dependencies/stockfish/src/misc.h
+	dependencies/stockfish/src/movegen.cpp
+	dependencies/stockfish/src/movegen.h
+	dependencies/stockfish/src/movepick.cpp
+	dependencies/stockfish/src/movepick.h
+	dependencies/stockfish/src/pawns.cpp
+	dependencies/stockfish/src/pawns.h
+	dependencies/stockfish/src/position.cpp
+	dependencies/stockfish/src/position.h
+	dependencies/stockfish/src/psqt.cpp
+	dependencies/stockfish/src/psqt.h
+	dependencies/stockfish/src/search.cpp
+	dependencies/stockfish/src/search.h
+	dependencies/stockfish/src/thread.cpp
+	dependencies/stockfish/src/thread.h
+	dependencies/stockfish/src/thread_win32_osx.h
+	dependencies/stockfish/src/timeman.cpp
+	dependencies/stockfish/src/timeman.h
+	dependencies/stockfish/src/tt.cpp
+	dependencies/stockfish/src/tt.h
+	dependencies/stockfish/src/tune.cpp
+	dependencies/stockfish/src/tune.h
+	dependencies/stockfish/src/types.h
+	dependencies/stockfish/src/uci.cpp
+	dependencies/stockfish/src/uci.h
+	dependencies/stockfish/src/ucioption.cpp
+
+	dependencies/stockfish/src/incbin/incbin.h
+
+	dependencies/stockfish/src/nnue/evaluate_nnue.cpp
+	dependencies/stockfish/src/nnue/evaluate_nnue.h
+	dependencies/stockfish/src/nnue/nnue_accumulator.h
+	dependencies/stockfish/src/nnue/nnue_architecture.h
+	dependencies/stockfish/src/nnue/nnue_common.h
+	dependencies/stockfish/src/nnue/nnue_feature_transformer.h
+	dependencies/stockfish/src/nnue/features/half_kp.cpp
+	dependencies/stockfish/src/nnue/features/half_kp.h
+	dependencies/stockfish/src/nnue/layers/affine_transform.h
+	dependencies/stockfish/src/nnue/layers/clipped_relu.h
+	dependencies/stockfish/src/nnue/layers/input_slice.h
+
+	dependencies/stockfish/src/syzygy/tbprobe.cpp
+	dependencies/stockfish/src/syzygy/tbprobe.h
+)
 
 target_link_libraries(deustoChess PUBLIC ${LIBS})
 
@@ -238,15 +353,15 @@ add_executable (clienteTest ${SOURCE_FILES}
 	src/utility/sconector.h
 	src/game/gamemodes.cpp
 	src/game/gamemodes.h
-	)
+)
 
 add_executable (clock ${SOURCE_FILES}
 	src/clock/clock.cpp
 	src/clock/hilo.cpp
 	src/clock/clock.h
-	)
+)
 
 add_executable (server ${SOURCE_FILES}
 	dependencies/server/server.cpp
 	dependencies/server/server.h
-	)
+)

@@ -25,7 +25,6 @@ namespace moduloStockfish
 	Modulo::Modulo()
 	{
 		this->comd = "position startpos moves";
-		initSF();
 	}
 
 	Modulo::~Modulo()

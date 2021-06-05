@@ -231,8 +231,7 @@ add_executable (deustoChess ${SOURCE_FILES}
 	src/utility/piece.cpp
 	src/utility/modulo.h
 	src/utility/modulo.cpp
-	src/game/menu.cpp
-	src/game/menu.h
+	src/menu.cpp
 	src/dataBase/dbManager.cpp
 	src/dataBase/dbManager.h
 	src/dataBase/idGenerator.h
@@ -372,6 +371,5 @@ add_executable (server ${SOURCE_FILES}
 )
 
 add_executable (menu ${SOURCE_FILES}
-	src/game/menu.cpp
-	src/game/menu.h
+	src/menu.cpp
 )

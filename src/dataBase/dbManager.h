@@ -15,6 +15,7 @@ public:
 	void addNewUser(char* username, char* password);
 	void updateUserWin(char* userId);
 	void updateUserLose(char* userId);
+	bool userExists(char* username);
 	
 };
 

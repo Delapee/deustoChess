@@ -50,23 +50,26 @@ bool DBManager::verifyUser(char* username, char* password) {
 void DBManager::addNewUser(char* username, char* password) {
     sqlite3_stmt* stmt;
     char* err;
+    
+    string query = "insert into user VALUES (" + generateUUID() + " , " + username + " , " + password + " , " + ", 800);";
+    int rc = sqlite3_exec(db, query.c_str(), NULL, NULL, &err);
+    if (rc != SQLITE_OK) {
+        cout << "ERROR EN INSERT: " << err;
+    }
+   
+}
+bool DBManager::userExists(char* username) {
+    sqlite3_stmt* stmt;
+    char* err;
     sqlite3_prepare_v2(db, "select name from user;", -1, &stmt, 0);
     bool noNameFound = true;
     while (sqlite3_step(stmt) != SQLITE_NULL && noNameFound == true) {
-        char* name = (char*) sqlite3_column_text(stmt, 0);
+        char* name = (char*)sqlite3_column_text(stmt, 0);
         if (strcmp(username, name) == 0) {
-            cout << "EL USUARIO YA EXISTE" << endl;
-            noNameFound = false;
+            return true;
         }
     }
-    if (noNameFound) {
-        string query = "insert into user VALUES (" + generateUUID() + " , " + username + " , " + password + " , " + ", 800);";
-        int rc = sqlite3_exec(db, query.c_str(), NULL, NULL, &err);
-        if (rc != SQLITE_OK) {
-            cout << "ERROR EN INSERT: " << err;
-        }
-    }
-    
+    return false;
 }
 void DBManager::updateUserWin(char* userName) {
     sqlite3_stmt* stmt;
@@ -95,6 +98,7 @@ void DBManager::updateUserLose(char* userName) {
     if (rc != SQLITE_OK) std::cout << "BIND 6 ERROR" << std::endl;
     sqlite3_step(stmt);
 }
+
 
 /*
 const unsigned char* getUserId(sqlite3* db, sqlite3_stmt* stmt, const char name);

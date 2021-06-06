@@ -1,253 +1,184 @@
-#include <blah.h>
-#include <unordered_map>
-#include "utility/piece.h"
-#include "game/gamemodes.h"
-#include "utility/chess.h"
-#include "utility/sconector.h"
 #include <iostream>
 #include <string>
-#include <thread> 
-#if WIN32
-#include <windows.h>
-#else
-#include <X11/Xlib.h>
-#endif
-using namespace Blah;
-
-Batch batch;
-TextureRef background;
-play::Game a;
-std::unordered_map<std::string, String> pieces;
-std::vector<chessSprite::Piece*> board;
-chessSprite::Piece *selec;
-Sconector *sc;
-bool listening , needUpdate;
-std::thread t1;
-
-void getScreenResolution(int& width, int& height) {
-	#if WIN32
-		width = (int)GetSystemMetrics(SM_CXSCREEN);
-		height = (int)GetSystemMetrics(SM_CYSCREEN);
-	#else
-		Display* disp = XOpenDisplay(NULL);
-		Screen* scrn = DefaultScreenOfDisplay(disp);
-		width = scrn->width;
-		height = scrn->height;
-	#endif
+#include "dataBase/dbManager.h"
+#include "launchGame.h"
+#include "utility/modulo.h"
+extern "C" {
+    #include "game/puzzle.h"
 }
 
-void loadPieces() {
-	selec = NULL;
+using namespace std;
 
-	// Piezas blancas
-	pieces.insert({ "Pb", "piezas/Pb.png" });
-	pieces.insert({ "Tb", "piezas/Tb.png" });
-	pieces.insert({ "Cb", "piezas/Cb.png" });
-	pieces.insert({ "Ab", "piezas/Ab.png" });
-	pieces.insert({ "Db", "piezas/Db.png" });
-	pieces.insert({ "Rb", "piezas/Rb.png" });
+void login();
+void regis();
+void selectMenuOption(int option);
+void initGameMenu();
+int selectGameMenuOption();
+void gameMenuOption(int option);
 
-	// Piezas negras
-	pieces.insert({ "Pn", "piezas/Pn.png" });
-	pieces.insert({ "Tn", "piezas/Tn.png" });
-	pieces.insert({ "Cn", "piezas/Cn.png" });
-	pieces.insert({ "An", "piezas/An.png" });
-	pieces.insert({ "Dn", "piezas/Dn.png" });
-	pieces.insert({ "Rn", "piezas/Rn.png" });
-}
+#define dbName "deustoChess.db"
+DBManager db = DBManager(dbName);
 
-void loadPoisitions() {
-	for (auto& piece : board) delete piece;
-	board.clear();
-	for (size_t i = 0; i < 64; i++)
-	{
-		std::string aux = (a.getBo())->panel[i];
-		
-		if (aux.compare("  ") != 0 && aux.compare(" b") && aux.compare(" n")) {
-			char ab[3];
-			ab[0] = getColumnId(i); ab[1] = '0' + getRowId(i); ab[2] = '\0';
-			chessSprite::Piece* p = new chessSprite::Piece(pieces[aux], ab);
-			board.push_back(p);
-		}
-	}
-}
-
-void reciveMove() {
-	sc->listendata();
-	char move[5]; strcpy(move, sc->getData().c_str());
-	if (isMove(a.getBo(), move, 0) == 1) movePiece(a.getBo(), move);
-	sc->validPriority();
-	checkCastle(a.getBo());
-	isPromote(a.getBo());
-	needUpdate = true;
-}
-
-
-void startup()
+int main(int argc, char* argv[])
 {
-	App::fullscreen(false);
- 	background = Texture::create("background.png");
-	needUpdate = false;
-	if (sc->connectServer() == true) {
-		sc->listendata();
-		if (sc->getData() == "Blanco") {
-			a = play::Game('b');
-			listening = true;
-			sc->validPriority();
-		}
-		else {
-			listening = false;
-			a = play::Game('n');
-		}
-	}
-	else
-	{
-		App::exit();
-	}
+    moduloStockfish::Modulo::setArgv(argv);
+    system("cls");
 
-	loadPieces();
-	loadPoisitions();
+    string option;
+    bool rigth = false;
+
+    do
+    {
+        cout << "\n+---------------------------------------------+\n" <<
+            "|               MENU DE INICIO                |\n" <<
+            "|---------------------------------------------|\n" <<
+            "| 1. Iniciar sesion                           |\n" <<
+            "| 2. Registrarser                             |\n" <<
+            "| 0. Salir                                    |\n" <<
+            "+---------------------------------------------+" << endl;
+
+        cout << "\nSelecciona una opcion: ";
+        cin >> option;
+
+        if (option.length() != 1 || option.at(0) - '0' < 0 || option.at(0) - '0' > 2)
+        {
+            system("cls");
+            cout << "\nValor incorrecto, debe estar entre 0 y 2." << endl;
+        }
+        else rigth = true;
+    } while (!rigth);
+
+    selectMenuOption(stoi(option));
+
+    return 0;
 }
 
-std::string getMouseBox() {
-	Vec2 m = Input::mouse();
-	int x = m.x;
-	int y = m.y;
-	char box [3] = "no";
-
-	if ((x > 455 && x < 455 + 115.5 * 8) && (y > 90 && y < 90 + 115.5 * 8))
-	{
-		int count = -1;
-		for (size_t i = 0; i < 8; i++)
-		{
-			if (455 + 115.5 *i < x)
-			{
-				count++;
-			}
-		}
-		(a.getPlayer() == 'b') ? box[0] = 'a' + count : box[0] = 'h' - count;
-		//box[0] = 'a' + count;
-
-		count = 0;
-		for (size_t i = 0; i < 8; i++)
-		{
-			if (90 + 115 * i < y)
-			{
-				count++;
-			}
-		}
-		(a.getPlayer() == 'b') ? box[1] = '9' - count : box[1] = '0' + count;
-		//box[1] = '9' - count;
-	}
-
-	return box;
-}
-
-void update()
-{	
-	if (Input::down(MouseButton::Left) && (!board[0]->getHover())) {
-
-		for (size_t i = 0; i < board.size(); i++)
-		{
-			if (board[i]->getPos().compare(getMouseBox()) == 0)
-			{
-				board[i]->setGrabbed(true);
-				board[i]->setHover(true);
-				selec = board[i];
-				break;
-			}
-		}
-	}
-	else if (!Input::down(MouseButton::Left) && board[0]->getHover()) {
-
-		std::string move = selec->getPos() + "" + getMouseBox();
-		char mo[5]; strcpy(mo, move.c_str());
-		char piece[2] = { mo[0] , mo[1] };
-
-		if (sc->getPriority() && getColor(a.getBo(), piece) == a.getPlayer()
-			&& isMove(a.getBo(), mo, 0) == 1 && isNailed(a.getBo(), mo) == 0) 
-		{
-			movePiece(a.getBo(), mo);
-			sc->setData(mo); sc->sendData();
-			checkCastle(a.getBo());
-			isPromote(a.getBo());
-			loadPoisitions();
-			listening = false;
-		}
-
-		selec->setGrabbed(false);
-		selec->setHover(false);
-		selec = NULL;
-	}
-
-	
-	if (!sc->getPriority() && !listening) {
-		listening = true;
-		std::thread t(reciveMove);
-		t.detach();
-	}
-
-	if (needUpdate) {
-		loadPoisitions();
-		needUpdate = false;
-	}
-
-}
-
-void render()
+void selectMenuOption(int option)
 {
-	App::backbuffer->clear(Color::black);
-	auto transform = Mat3x2::create_transform(Vec2::zero, Vec2::zero, Vec2::one, 0);
-	batch.push_matrix(transform);
-	
-	// AQUI DIBUJO TODO
-	batch.tex(background, Vec2(0, 0), Color::white);
-
-	for (int i = 0; i < board.size(); i++)
-	{
-		if (!board[i]->isGrabbed()) {
-			board[i]->draw(&batch, a.getPlayer());
-		}
-	}
-
-	if (selec != NULL) {
-		selec->drawMouse(&batch);
-	}
-
-	//////////////////////////////////////////
-	batch.pop_matrix();
-	batch.render();
-	batch.clear();
+    system("cls");
+    switch (option)
+    {
+    case 1:
+        login();
+        break;
+    case 2:
+        regis();
+        break;
+    }
 }
 
-
-
-void dispose()
+void login()
 {
-	for (auto& piece : board) delete piece;
-	delete sc;
+    char* user = new char[15];
+    char* pass = new char[15];
+    bool rigth = false;
+
+    do
+    {
+        std::cout << "\nUsuario: ";
+        cin >> user;
+
+        std::cout << "Contraseña: ";
+        cin >> pass;
+
+        if (!db.verifyUser(user, pass))
+        {
+            system("cls");
+            std::cout << "\nUsuario o contraseña incorecta" << endl;
+        }
+        else rigth = true;
+    } while (!rigth);
+
+    initGameMenu();
 }
 
-int main()
+void regis()
 {
-	int width, height;
-	getScreenResolution(width, height);
+    char* user = new char[15];
+    char* pass = new char[15];
+    bool rigth = false;
 
-	Config config;
-	config.name = "Deusto Chess";
-	config.width = width;
-	config.height = height;
-	config.target_framerate = 120;
-	config.on_startup = startup;
-	config.on_render = render;
-	config.on_update = update;
-	config.on_shutdown = dispose;
+    do
+    {
+        std::cout << "\nUsuario: ";
+        cin >> user;
 
-	char ip[20];
-	std::cout << "Marca la ip del servidor: ";
-	std::cin >> ip;
-	sc = new Sconector(ip, 8001);
+        if (db.userExists(user))
+        {
+            system("cls");
+            std::cout << "\nUsuario no valido" << endl;
+        }
+        else rigth = true;
+    } while (!rigth);
 
-	App::run(&config);
-	return 0;
+    std::cout << "Contraseña: ";
+    cin >> pass;
+
+    db.addNewUser(user, pass);
+
+    initGameMenu();
+}
+
+void initGameMenu()
+{
+    system("cls");
+    int opcion;
+        
+    opcion = selectGameMenuOption();
+    gameMenuOption(opcion);
+}
+
+int selectGameMenuOption()
+{
+    system("cls");
+
+    string option;
+    bool rigth = false;
+
+    do
+    {
+        cout << "\n+---------------------------------------------+\n" <<
+            "|               MENU DE JUEGO                 |\n" <<
+            "|---------------------------------------------|\n" <<
+            "| 1. Jugar Local                              |\n" <<
+            "| 2. Jugar Online                             |\n" <<
+            "| 3. Jugar contra IA                          |\n" <<
+            "| 4. Puzzles Rush (Clasico)                   |\n" <<
+            "| 0. Salir                                    |\n" <<
+            "+---------------------------------------------+" << endl;
+
+        cout << "\nSelecciona una opcion: ";
+        cin >> option;
+
+        if (option.length() != 1 || option.at(0) - '0' < 0 || option.at(0) - '0' > 4)
+        {
+            system("cls");
+            cout << "\nValor incorrecto, debe estar entre 0 y 4." << endl;
+        }
+        else rigth = true;
+    } while (!rigth);
+
+    return stoi(option);
+}
+
+void gameMenuOption(int option)
+{
+    system("cls");
+    switch (option)
+    {
+    case 1:
+        launch(1);
+        break;
+    case 2:
+        launch(2);
+        break;
+    case 3:
+        launch(3);
+        break;
+    case 4:
+        initPuzzles();
+        break;
+    default:
+        break;
+    }
 }

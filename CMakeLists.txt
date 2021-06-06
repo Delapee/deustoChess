@@ -219,22 +219,40 @@ include_directories(${PROJECT_SOURCE_DIR}/dependencies/blah/include)
 add_executable (deustoChess ${SOURCE_FILES} 
 
 	src/main.cpp
+	src/launchGame.h
+	src/launchGame.cpp
+
 	src/utility/chess.cpp
 	src/utility/chess.h
 	src/utility/sconector.cpp
 	src/utility/sconector.h
-	src/game/gamemodes.cpp
-	src/game/gamemodes.h
 	src/utility/sprite.h
 	src/utility/sprite.cpp
 	src/utility/piece.h
 	src/utility/piece.cpp
 	src/utility/modulo.h
 	src/utility/modulo.cpp
-	src/menu.cpp
+
+	src/game/gamemodes.cpp
+	src/game/gamemodes.h
+	src/game/chess.c
+	src/game/chess.h
+	src/game/puzzle.c
+	src/game/puzzle.h
+	
 	src/dataBase/dbManager.cpp
-	src/dataBase/dbManager.h
+	src/dataBase/dbManager.h	
 	src/dataBase/idGenerator.h
+
+	src/states/gameScene.cpp
+	src/states/gameScene.h
+	src/states/offlineScene.cpp
+	src/states/offlineScene.h
+	src/states/onlineScene.cpp
+	src/states/onlineScene.h
+	src/states/vsIaScene.cpp
+	src/states/vsIaScene.h
+
 
 	dependencies/blah/src/core/app.cpp
 	dependencies/blah/src/core/filesystem.cpp
@@ -345,31 +363,11 @@ add_executable (deustoChess ${SOURCE_FILES}
 
 	dependencies/stockfish/src/syzygy/tbprobe.cpp
 	dependencies/stockfish/src/syzygy/tbprobe.h
-)
+ )
 
 target_link_libraries(deustoChess PUBLIC ${LIBS})
 
-add_executable (clienteTest ${SOURCE_FILES}
-	src/testClient.cpp
-	src/utility/chess.cpp
-	src/utility/chess.h
-	src/utility/sconector.cpp
-	src/utility/sconector.h
-	src/game/gamemodes.cpp
-	src/game/gamemodes.h
-)
-
-add_executable (clock ${SOURCE_FILES}
-	src/clock/clock.cpp
-	src/clock/hilo.cpp
-	src/clock/clock.h
-)
-
-add_executable (server ${SOURCE_FILES}
-	dependencies/server/server.cpp
-	dependencies/server/server.h
-)
-
-add_executable (menu ${SOURCE_FILES}
-	src/menu.cpp
+add_executable (server ${SOURCE_FILES}     
+	server/server.cpp
+	server/server.h 
 )

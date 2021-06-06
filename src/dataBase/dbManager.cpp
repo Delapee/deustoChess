@@ -78,16 +78,18 @@ void DBManager::addNewUser(char* username, char* password) {
 bool DBManager::userExists(char* username) {
     sqlite3_stmt* stmt;
     char* err;
-    sqlite3_prepare_v2(db, "select name from user;", -1, &stmt, 0);
-    bool noNameFound = true;
-    while (sqlite3_step(stmt) != SQLITE_NULL && noNameFound == true) {
-        char* name = (char*)sqlite3_column_text(stmt, 0);
-        if (strcmp(username, name) == 0) {
-            noNameFound = false;
-            return true;
-        }
-    }
-    return false;
+
+    char* sql1 = "select name from user where name = ?"; // Sentencia SQL
+
+    int rc = sqlite3_prepare_v2(db, sql1, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) std::cout << "PREPARE 1 ERROR" << std::endl;
+
+    rc = sqlite3_bind_text(stmt, 1, username, strlen(username), SQLITE_STATIC); // Introducir username
+    if (rc != SQLITE_OK) std::cout << "BIND 1 ERROR" << std::endl;
+
+    rc = sqlite3_step(stmt); // Ejecutar query
+
+    return rc == SQLITE_ROW;
 }
 void DBManager::updateUserWin(char* userName) {
     sqlite3_stmt* stmt;

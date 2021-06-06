@@ -10,11 +10,13 @@ using namespace std;
 
 CLIENT_INFO connectedUsers[2];              //maximo num de players.
 //192.168.0.13
-char szServerIPAddr[] = "192.168.1.44";     // Ip del server
+char* szServerIPAddr = new char[16];         // Ip del server
 int nServerPort = 8001;                     // puerto del servidor que se utilizará
 
 int main()
 {
+    cout << "Introduce tu ip local: ";
+    cin >> szServerIPAddr;
     //--Comprobación error incio lib--
     if (!InitWinSock2_0())
     {
@@ -84,7 +86,7 @@ int bindPort(SOCKET hServerSocket)
         WSACleanup();
         return -1;
     }
-    cout << "Biendeo Correcto Papi" << endl;
+    cout << "Puertos enlazados corectamente" << endl;
 }
 
 void listenUsers(SOCKET hServerSocket)

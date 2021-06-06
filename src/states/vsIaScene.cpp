@@ -18,7 +18,7 @@ namespace chessScene
 			needUpdate = false;
 		}
 
-		background = Texture::create("background.png");
+		background = Texture::create("data/img/background/background.png");
 		modulo = moduloStockfish::Modulo();
 		modulo.initSF();
 		loadPieces();
@@ -59,13 +59,7 @@ namespace chessScene
 			selec->setHover(false);
 			selec = NULL;
 		}
-		/*
-		if (!listening) {
-			listening = true;
-			std::thread t(&reciveMove,this);
-			t.detach();
-		}
-		*/
+
 		if (needUpdate) {
 			loadPoisitions();
 			if (isCheck(a.getBo(), (a.getPlayer() == 'b') ? 'n' : 'b') == 2) App::exit();

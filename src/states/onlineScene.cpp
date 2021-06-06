@@ -63,8 +63,8 @@ namespace chessScene
 		std::cin >> ip;
 		sc = new Sconector(ip, 8001);
 
-		App::fullscreen(false);
-		background = Texture::create("background.png");
+		App::fullscreen(true);
+		background = Texture::create("data/img/background/background.png");
 		needUpdate = false;
 		if (sc->connectServer() == true) {
 			sc->listendata();

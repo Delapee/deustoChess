@@ -17,20 +17,20 @@ namespace chessScene
 		selec = NULL;
 
 		// Piezas blancas
-		pieces.insert({ "Pb", "piezas/Pb.png" });
-		pieces.insert({ "Tb", "piezas/Tb.png" });
-		pieces.insert({ "Cb", "piezas/Cb.png" });
-		pieces.insert({ "Ab", "piezas/Ab.png" });
-		pieces.insert({ "Db", "piezas/Db.png" });
-		pieces.insert({ "Rb", "piezas/Rb.png" });
+		pieces.insert({ "Pb", "data/img/piece/Pb.png" });
+		pieces.insert({ "Tb", "data/img/piece/Tb.png" });
+		pieces.insert({ "Cb", "data/img/piece/Cb.png" });
+		pieces.insert({ "Ab", "data/img/piece/Ab.png" });
+		pieces.insert({ "Db", "data/img/piece/Db.png" });
+		pieces.insert({ "Rb", "data/img/piece/Rb.png" });
 
 		// Piezas negras
-		pieces.insert({ "Pn", "piezas/Pn.png" });
-		pieces.insert({ "Tn", "piezas/Tn.png" });
-		pieces.insert({ "Cn", "piezas/Cn.png" });
-		pieces.insert({ "An", "piezas/An.png" });
-		pieces.insert({ "Dn", "piezas/Dn.png" });
-		pieces.insert({ "Rn", "piezas/Rn.png" });
+		pieces.insert({ "Pn", "data/img/piece/Pn.png" });
+		pieces.insert({ "Tn", "data/img/piece/Tn.png" });
+		pieces.insert({ "Cn", "data/img/piece/Cn.png" });
+		pieces.insert({ "An", "data/img/piece/An.png" });
+		pieces.insert({ "Dn", "data/img/piece/Dn.png" });
+		pieces.insert({ "Rn", "data/img/piece/Rn.png" });
 	}
 
 	void GameScene::loadPoisitions() {

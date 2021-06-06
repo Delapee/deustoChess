@@ -7,8 +7,8 @@ namespace chessScene
 	}
 
 	void OfflineScene::startup() {
-		App::fullscreen(false);
-		background = Texture::create("background.png");
+		App::fullscreen(true);
+		background = Texture::create("data/img/background/background.png");
 		a = play::Game('b');
 		loadPieces();
 		loadPoisitions();
@@ -54,7 +54,4 @@ namespace chessScene
     void OfflineScene::dispose() {
 		for (auto& piece : board) delete piece;
     }
-
-
-
 }

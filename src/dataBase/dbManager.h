@@ -8,6 +8,7 @@ private:
 	sqlite3* db;
 
 public:
+	DBManager();
 	DBManager(char* dbName);
 	~DBManager();
 

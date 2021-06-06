@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 #include "../../dependencies/sqlite/sqlite3.h"
 
 #include <string.h>
@@ -7,20 +8,17 @@
 #include "idGenerator.h"
 
 using namespace std;
-
+DBManager::DBManager() {
+    
+    
+}
 DBManager::DBManager(char* dbName) {
-    sqlite3_open(dbName, &this->db);
-
-    int rc = sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS user(id VARCHAR(36) PRIMARY KEY NOT NULL, name VARCHAR(100) UNIQUE NOT NULL, pass VARCHAR(100) NOT NULL, elo INT DEFAULT 800);", NULL, NULL, &err);
-    if (rc != SQLITE_OK) {
-        cout << "F bro: " << err;
+    int rs = sqlite3_open(dbName, &this->db);
+    if (rs != SQLITE_OK) {
+        cout << "DB ERROR" << endl;
     }
-    rc = sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS history(id VARCHAR(36) PRIMARY KEY NOT NULL, id_whitePlayer VARCHAR(36) NOT NULL,"
-        "id_blackPlayer VARCHAR(36) NOT NULL, winner INT, CHECK (winner=0 OR winner=1 OR winner=2),"
-        "FOREIGN KEY(id_whitePlayer) REFERENCES user(id),FOREIGN KEY(id_blackPlayer) REFERENCES user(id)); ", NULL, NULL, &err);
-
-    if (rc != SQLITE_OK) {
-        cout << "F bro en tabla history: " << err;
+    else {
+        cout << "INICIO OK" << endl;
     }
 }
 
@@ -30,10 +28,9 @@ DBManager::~DBManager() {
 
 bool DBManager::verifyUser(char* username, char* password) {
     sqlite3_stmt* stmt;
-    sqlite3_stmt* stmt;
     char* err;
 
-    char* sql1 = "select user_id from user where username = ? and pass = ?;"; // Sentencia SQL
+    char* sql1 = "select id from user where name = ? and pass = ?"; // Sentencia SQL
 
     int rc = sqlite3_prepare_v2(db, sql1, -1, &stmt, NULL);
     if (rc != SQLITE_OK) std::cout << "PREPARE 1 ERROR" << std::endl;
@@ -44,19 +41,39 @@ bool DBManager::verifyUser(char* username, char* password) {
     if (rc != SQLITE_OK) std::cout << "BIND 2 ERROR" << std::endl;
 
     rc = sqlite3_step(stmt); // Ejecutar query
-    sqlite3_finalize(stmt);
+    
     return rc == SQLITE_ROW;
 }
+
 void DBManager::addNewUser(char* username, char* password) {
+
     sqlite3_stmt* stmt;
-    char* err;
+    int rc;
+
+    // Usuario
+    char sql1[] = "insert into user values (?,?,?,800);";
+    rc = sqlite3_prepare_v2(db, sql1, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) std::cout << "PREPARE 1 ERROR" << std::endl;
     
-    string query = "insert into user VALUES (" + generateUUID() + " , " + username + " , " + password + " , " + ", 800);";
-    int rc = sqlite3_exec(db, query.c_str(), NULL, NULL, &err);
-    if (rc != SQLITE_OK) {
-        cout << "ERROR EN INSERT: " << err;
+    string id = generateUUID();
+    char idStm[36];
+    for (int i = 0; i < id.length(); i++)
+    {
+        idStm[i] = id[i];
     }
-   
+    idStm[35] = '\0';
+    cout << idStm << endl;
+    
+    rc = sqlite3_bind_text(stmt, 1, idStm, strlen(idStm), SQLITE_STATIC);
+    if (rc != SQLITE_OK) std::cout << "BIND 1 ERROR" << std::endl;
+    rc = sqlite3_bind_text(stmt, 2, username, strlen(username), SQLITE_STATIC);
+    if (rc != SQLITE_OK) std::cout << "BIND 2 ERROR" << std::endl;
+    rc = sqlite3_bind_text(stmt, 3, password, strlen(password), SQLITE_STATIC);
+    if (rc != SQLITE_OK) std::cout << "BIND 3 ERROR" << std::endl;
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_ROW && rc != SQLITE_DONE) std::cout << "STEP 1 ERROR" << std::endl;
+    
 }
 bool DBManager::userExists(char* username) {
     sqlite3_stmt* stmt;
@@ -66,6 +83,7 @@ bool DBManager::userExists(char* username) {
     while (sqlite3_step(stmt) != SQLITE_NULL && noNameFound == true) {
         char* name = (char*)sqlite3_column_text(stmt, 0);
         if (strcmp(username, name) == 0) {
+            noNameFound = false;
             return true;
         }
     }
